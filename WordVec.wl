@@ -16,13 +16,22 @@ Main::usage = "Main[] main routine of the WordVec package";
 Begin["`Private`"];
 
 
-Main[]:= NumberLinePlot[{1,2,3}]
+Main[text_]:= isValidText[text]
 
 
-MiniMap[loc_] := GeoGraphics[toLocation[loc], ImageSize->Small]
+(* Auxiliary functions *)
 
 
-toLocation[loc_] := Interpreter["Location"][loc]
+(* Plots two vector in a n-dimensional space: TODO *)
+
+(* Checks whether an expression is a number *)
+isANumber[expr_] := NumericQ[expr]
+
+(* Check whether a string is a valid word *)
+isValidWord[str_, lang_: "English"] := DictionaryWordQ[str, Language -> lang]
+
+(* Check wether a piece of text is valid *)
+isValidText[text_String, lang_: "English"] := AllTrue[DeleteStopwords@TextWords[text], isValidWord[#, lang] &]
 
 
 End[];
