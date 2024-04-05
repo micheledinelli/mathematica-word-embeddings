@@ -1,12 +1,22 @@
 (* ::Package:: *)
 
+(* ::Package:: *)
+(* :Title: WordVec *)
+(* :Context: WordVec` *)
+(* :Authors: FB, MD, YH, MR *)
+
+
+
 BeginPackage["WordVec`"];
 
 
-MiniMap::usage = "Minimap[loc] makes a tiny map of a location";
+Main::usage = "Main[] main routine of the WordVec package";
 
 
 Begin["`Private`"];
+
+
+Main[]:= NumberLinePlot[{1,2,3}]
 
 
 MiniMap[loc_] := GeoGraphics[toLocation[loc], ImageSize->Small]
