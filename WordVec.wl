@@ -3,7 +3,16 @@
 (* ::Package:: *)
 (* :Title: WordVec *)
 (* :Context: WordVec` *)
-(* :Authors: FB, MD, YH, MR *)
+(* :Author: BF DM HY RM *)
+(* :Summary: An interactive visualizer of word embeddings *)
+(* :Copyright: BF DM HY RM 2024 *)
+(* :Package Version: 1 *)
+(* :Mathematica Version: 13 *)
+(* :History: last modified 27/3/2023 *)
+(* :Keywords: embeddings, vectors, word2vec *)
+(* :Limitations: this is for educational purposes only.  *)
+(* :Requirements: *)
+(* :Warning: package Context is not defined *)
 
 
 BeginPackage["WordVec`"];
@@ -15,26 +24,13 @@ Main::usage = "Main[] main routine of the WordVec package";
 Begin["`Private`"];
 
 
-Main[]:= loadModel[];
+Main[]:= startUI[]
 
 
 (* Auxiliary functions *)
 
 
-(* Load the Word2Vec model *)
-loadModel[] = Module[{net, words, vecs, word2vec},
-    	net = NetModel["GloVe 50-Dimensional Word Vectors Trained on Wikipedia and Gigaword 5 Data"];
-    	words = NetExtract[net, "Input"][["Tokens"]];
-    	vecs = Normal@NetExtract[net, "Weights"][[1 ;; -2]];
-    	word2vec = AssociationThread[words -> vecs];
-        (*Nearest[word2vec, word2vec["king"], 8]*)
-    ];
-
-(* Check whether a string is a valid word *)
-isValidWord[str_, lang_: "English"] := DictionaryWordQ[str, Language -> lang];
-
-(* Check wether a piece of text is valid *)
-isValidText[text_String, lang_: "English"] := AllTrue[DeleteStopwords@TextWords[text], isValidWord[#, lang] &];
+startUI[]:= Module[{x}, Manipulate[x^2, {{x, 1, "x value"}, 1, 10, 1}]]
 
 
 End[];

@@ -10,14 +10,16 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       158,          7]
-NotebookDataLength[      2262,         65]
-NotebookOptionsPosition[      1914,         51]
-NotebookOutlinePosition[      2309,         67]
-CellTagsIndexPosition[      2266,         64]
+NotebookDataLength[      4272,        107]
+NotebookOptionsPosition[      3795,         90]
+NotebookOutlinePosition[      4190,        106]
+CellTagsIndexPosition[      4147,        103]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
 Notebook[{
+
+Cell[CellGroupData[{
 Cell[BoxData[
  RowBox[{
   RowBox[{"(*", " ", 
@@ -45,11 +47,48 @@ Cell[BoxData[
   3.921307902412466*^9}, {3.921311674249489*^9, 3.921311697195472*^9}, {
   3.9213117499656997`*^9, 3.921311755221184*^9}, {3.921314843118564*^9, 
   3.921314843390498*^9}, {3.9213151875107603`*^9, 3.921315221378113*^9}, {
-  3.922257257274453*^9, 
-  3.922257299032749*^9}},ExpressionUUID->"7bf2a37f-1162-49da-86af-\
-bd885c4524e8"]
+  3.922257257274453*^9, 3.922257299032749*^9}, {3.922257391028462*^9, 
+  3.922257391804727*^9}},
+ CellLabel->"In[78]:=",ExpressionUUID->"7bf2a37f-1162-49da-86af-bd885c4524e8"],
+
+Cell[BoxData[
+ TagBox[
+  StyleBox[
+   DynamicModuleBox[{WordVec`Private`x$16174$$ = 3, Typeset`show$$ = True, 
+    Typeset`bookmarkList$$ = {}, Typeset`bookmarkMode$$ = "Menu", 
+    Typeset`animator$$, Typeset`animvar$$ = 1, Typeset`name$$ = 
+    "\"untitled\"", Typeset`specs$$ = {{{
+       Hold[WordVec`Private`x$16174$$], 1, "x value"}, 1, 10, 1, ControlType -> 
+      Manipulator}}, Typeset`size$$ = {8., {0.156, 8.45}}, Typeset`update$$ = 
+    0, Typeset`initDone$$, Typeset`skipInitDone$$ = True}, 
+    DynamicBox[Manipulate`ManipulateBoxes[
+     1, StandardForm, "Variables" :> {WordVec`Private`x$16174$$ = 1}, 
+      "ControllerVariables" :> {}, 
+      "OtherVariables" :> {
+       Typeset`show$$, Typeset`bookmarkList$$, Typeset`bookmarkMode$$, 
+        Typeset`animator$$, Typeset`animvar$$, Typeset`name$$, 
+        Typeset`specs$$, Typeset`size$$, Typeset`update$$, Typeset`initDone$$,
+         Typeset`skipInitDone$$}, "Body" :> WordVec`Private`x$16174$$^2, 
+      "Specifications" :> {{{WordVec`Private`x$16174$$, 1, "x value"}, 1, 10, 
+         1}}, "Options" :> {}, "DefaultOptions" :> {}],
+     ImageSizeCache->{270., {51., 57.}},
+     SingleEvaluation->True],
+    Deinitialization:>None,
+    DynamicModuleValues:>{},
+    SynchronousInitialization->True,
+    UndoTrackedVariables:>{Typeset`show$$, Typeset`bookmarkMode$$},
+    UnsavedVariables:>{Typeset`initDone$$},
+    UntrackedVariables:>{Typeset`size$$}], "Manipulate",
+   Deployed->True,
+   StripOnInput->False],
+  Manipulate`InterpretManipulate[1]]], "Output",
+ CellChangeTimes->{{3.9222603745162*^9, 3.922260392744879*^9}, 
+   3.922260427584237*^9, 3.922260499531973*^9, {3.9222605374767647`*^9, 
+   3.922260548710681*^9}},
+ CellLabel->"Out[80]=",ExpressionUUID->"9fdaf36e-fdf5-4775-ad4e-dbbb425b9c67"]
+}, Open  ]]
 },
-WindowSize->{720, 847},
+WindowSize->{720, 409},
 WindowMargins->{{Automatic, 0}, {Automatic, 0}},
 FrontEndVersion->"14.0 for Mac OS X ARM (64-bit) (December 12, 2023)",
 StyleDefinitions->"Default.nb",
@@ -66,7 +105,10 @@ CellTagsIndex->{}
 *)
 (*NotebookFileOutline
 Notebook[{
-Cell[558, 20, 1352, 29, 178, "Input",ExpressionUUID->"7bf2a37f-1162-49da-86af-bd885c4524e8"]
+Cell[CellGroupData[{
+Cell[580, 22, 1420, 29, 178, "Input",ExpressionUUID->"7bf2a37f-1162-49da-86af-bd885c4524e8"],
+Cell[2003, 53, 1776, 34, 127, "Output",ExpressionUUID->"9fdaf36e-fdf5-4775-ad4e-dbbb425b9c67"]
+}, Open  ]]
 }
 ]
 *)
