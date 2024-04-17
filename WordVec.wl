@@ -19,7 +19,7 @@ BeginPackage["WordVec`"];
 
 
 Main::usage = "Main[] main routine of the WordVec package";
-parolaCasuale::usage = "Parola casuale";
+randomWord::usage = "Parola casuale";
 
 
 Begin["`Private`"];
@@ -31,7 +31,7 @@ Main[]:= startUI[]
 (* Auxiliary functions *)
 
 
-parolaCasuale[seed_Integer]:=BlockRandom[SeedRandom[seed];
+randomWord[seed_]:= BlockRandom[SeedRandom[seed];
 	RandomChoice[WordList[]]]
 
 
