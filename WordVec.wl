@@ -18,6 +18,7 @@ BeginPackage["WordVec`"];
 
 
 Main::usage = "Main[] main routine of the WordVec package";
+Distance::usage = "Distance[word1, word2] returns the euclidian distance between the embeddings of the two words";
 
 
 Begin["`Private`"];
@@ -29,7 +30,10 @@ Begin["`Private`"];
 $net = NetModel["ConceptNet Numberbatch Word Vectors V17.06 (Raw Model)"];
 
 
-Main[]:= visualizeWordVectors3D[$net, {"asgsdfgdsgfdsg", "michele", "ciao"}]
+Main[]:= Module[{words, embeddings}, 
+	words = {"hello", "how", "are", "goodbye", "cow", "chicken"};
+	embeddings = getEmbedding /@ words;
+	visualizeWordVectors3D[words, embeddings]]
 
 
 (* Generates a random word given a seed *)
@@ -50,33 +54,20 @@ randomWord[seed_] := Module[
 ]
 
 
-(* Displays the list of input words in a three-dimensional space using PCA *)
-(* IN: embedding network, list of words *)
-visualizeWordVectors3D[net_, words_] := Module[
-    {vectors, pca3D, colors, wordsWithEmbeddings},
-    
-    (* Filter out words for which the network cannot produce embeddings *)
-    wordsWithEmbeddings = Select[ToLowerCase[words], checkWordNetQ];
-    
-    (* Check if there are words with embeddings *)
-    If[Length[wordsWithEmbeddings] == 0,
-        Print["No embeddings found for any of the input words."];
-        Return[]
-    ];
-    
-    (* Get vectors for the words with embeddings *)
-    vectors = net[wordsWithEmbeddings];
-    
+visualizeWordVectors3D[words_, embeddings_] := Module[
+    {pca3D, colors, wordsWithEmbeddings, distanceVector},
+
     (* Perform PCA for dimensionality reduction *)
-    pca3D = PrincipalComponents[vectors][[All, 1 ;; 3]];
-    
+    pca3D = PrincipalComponents[embeddings][[All, 1 ;; 3]];
+
     (* Define colors for each word *)
-    colors = ColorData[97] /@ Range[Length[wordsWithEmbeddings]];
-    (* Plot the vectors in a 3D space with swagger *)
-    Graphics3D[
+    colors = ColorData[97] /@ Range[Length[words]];
+
+    (* Plot the vectors in a 3D space with arrows representing the embeddings *)
+    graphics = Graphics3D[
         {
-            MapThread[{Thick, #1, Arrow[{{0, 0, 0}, #2}]} & , {colors, pca3D}],
-            MapThread[Text[Style[#1, 14], #2 + 0.1 Normalize[#2]] & , {wordsWithEmbeddings, pca3D}]
+            MapThread[{Thick, #1, Arrow[{{0, 0, 0}, #2}]} &, {colors, pca3D}],
+            MapThread[Text[Style[#1, 14], #2 + 0.1 Normalize[#2]] &, {words, pca3D}]
         },
         Axes -> True,
         BoxRatios -> {1, 1, 1},
@@ -85,60 +76,87 @@ visualizeWordVectors3D[net_, words_] := Module[
         ViewPoint -> {1.3, -2.4, 2},
         ImageSize -> Large,
         PlotRange -> All
-    ]
+    ];
+    
+    (* Return the graphics *)
+    graphics
 ]
 
 
-(* Displays the list of input words in a bi-dimensional space using PCA *)
-(* IN: embedding network, list of words *)
-visualizeWordVectors2D[net_, words_] := Module[
-    {vectors, pca2D, colors, wordsWithEmbeddings},
-    
-    (* Filter out words for which the network cannot produce embeddings *)
-    wordsWithEmbeddings = Select[ToLowerCase[words], checkWordNetQ];
-    
-    (* Check if there are words with embeddings *)
-    If[Length[wordsWithEmbeddings] == 0,
-        Print["No embeddings found for any of the input words."];
-        Return[]
-    ];
-    
-    (* Get vectors for the words with embeddings *)
-    vectors = net[wordsWithEmbeddings];
-    
+visualizeWordVectors2D[words_, embeddings_] := Module[
+    {pca2D, colors, distanceVector},
+
     (* Perform PCA for dimensionality reduction *)
-    pca2D = PrincipalComponents[vectors][[All, 1 ;; 2]];
-    
+    pca2D = PrincipalComponents[embeddings][[All, 1 ;; 2]];
+
     (* Define colors for each word *)
-    colors = ColorData[97] /@ Range[Length[wordsWithEmbeddings]];
-    
-    (* Plot the vectors in a 2D space with swagger *)
-    Graphics[
+    colors = ColorData[97] /@ Range[Length[words]];
+
+    (* Plot the vectors in a 2D space with arrows representing the embeddings *)
+    graphics = Graphics[
         {
-            MapThread[{Thick, #1, Arrow[{{0, 0}, #2}]} & , {colors, pca2D}],
-            MapThread[Text[Style[#1, 14], #2 + 0.1 Normalize[#2]] & , {wordsWithEmbeddings, pca2D}]
+            MapThread[{Thick, #1, Arrow[{{0, 0}, #2}]} &, {colors, pca2D}],
+            MapThread[Text[Style[#1, 14], #2 + 0.1 Normalize[#2]] &, {words, pca2D}]
         },
         Axes -> True,
         AspectRatio -> 1,
-        PlotRange -> All,
         AxesStyle -> Directive[Black, Bold],
         AxesLabel -> {"PC1", "PC2"},
         ImageSize -> Large
+    ];
+    (* Return the graphics *)
+    graphics
+]
+
+
+(* Calculate distance between two words based on their embeddings *)
+Distance[word1_, word2_] := Module[
+    {embOne, embTwo},
+
+    (* Get embeddings for the words *)
+    embOne = getEmbedding[word1];
+    embTwo = getEmbedding[word2];
+    
+    visualizeWordVectors2D[{word1, word2}, {embOne, embTwo}, PlotDistance -> True]
+
+    (* Check if embeddings are valid *)
+    If[embOne === None || embTwo === None,
+        Return[None], (* Return None if either embedding is None *)
+        Return[Norm[embOne - embTwo]] (* Calculate Euclidean distance *)
     ]
 ]
 
 
-(* Check whether the net can produce embeddings for a given word *)
+(* Get embedding for a given word *)
+(* IN: word *)
+getEmbedding[word_] := Module[
+    {wordLower, vector},
+
+    (* Convert the input word to lowercase *)
+    wordLower = ToLowerCase[word];
+
+    (* Try querying the network *)
+    Quiet[
+        Check[
+            vector = $net[wordLower];
+            Return[vector], (* Return the vector if it exists *)
+            Return[None]    (* Return None if an error occurs or vector doesn't exist *)
+        ]
+    ]
+]
+
+
+(* Check whether the net can produce embedding for a given word *)
 (* IN: word *)
 checkWordNetQ[word_] := Module[
-    {wordLower, vectors, exists},
+    {wordLower, vector, exists},
 
     (* Convert the input word to lowercase *)
     wordLower = ToLowerCase[word];
 
     (* Try querying the network *)
     Quiet[Check[
-        vectors = $net[wordLower];
+        vector = $net[wordLower];
         exists = True,
         exists = False
     ]];
