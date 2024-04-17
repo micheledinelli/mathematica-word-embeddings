@@ -30,10 +30,57 @@ Begin["`Private`"];
 $net = NetModel["ConceptNet Numberbatch Word Vectors V17.06 (Raw Model)"];
 
 
-Main[]:= Module[{words, embeddings}, 
-	words = {"hello", "how", "are", "goodbye", "cow", "chicken"};
-	embeddings = getEmbedding /@ words;
-	visualizeWordVectors3D[words, embeddings]]
+Main[] := createDemo[]
+
+
+createDemo[] := DynamicModule[
+	{words = {}, embeddings = {}, wordInput, addWordAndEmbedding},
+	
+	addWordAndEmbedding[word_] := DynamicModule[
+		{embedding}, 
+		embedding = getEmbedding[word]; 
+			If[embedding =!= None,
+				AppendTo[words, word];
+				AppendTo[embeddings, embedding];
+			];
+	];
+	
+	Grid[{
+	  {
+	    Column[{
+	      "Choose a word",
+	      Row[{
+	        InputField[Dynamic[wordInput], String, ContinuousAction -> True],
+	        Button["Add word", addWordAndEmbedding[wordInput]; wordInput = ""]
+	      }]
+	    }],
+	    Column[{
+	      "Actions",
+	      Row[{
+	        Button["Generate exercise", addWordAndEmbedding[wordInput]; wordInput = ""],
+	        Button["Clear", addWordAndEmbedding[wordInput]; wordInput = ""]
+	        Button["Show solution", addWordAndEmbedding[wordInput]; wordInput = ""]
+	      }]
+	    }]
+	  },
+	  {
+	    Row[{
+		  "Your words: ",
+		  Dynamic[words]
+	    }], 
+	    SpanFromLeft
+	  },
+	  {
+	    Dynamic[visualizeWordVectors2D[words, embeddings]], 
+	    SpanFromLeft
+	  }
+	}, 
+	Frame -> True, 
+	ItemSize -> Automatic,
+	Dividers -> All,
+	Spacings -> {10, 2}
+	]
+]
 
 
 (* Generates a random word given a seed *)
@@ -54,38 +101,13 @@ randomWord[seed_] := Module[
 ]
 
 
-visualizeWordVectors3D[words_, embeddings_] := Module[
-    {pca3D, colors, wordsWithEmbeddings, distanceVector},
-
-    (* Perform PCA for dimensionality reduction *)
-    pca3D = PrincipalComponents[embeddings][[All, 1 ;; 3]];
-
-    (* Define colors for each word *)
-    colors = ColorData[97] /@ Range[Length[words]];
-
-    (* Plot the vectors in a 3D space with arrows representing the embeddings *)
-    graphics = Graphics3D[
-        {
-            MapThread[{Thick, #1, Arrow[{{0, 0, 0}, #2}]} &, {colors, pca3D}],
-            MapThread[Text[Style[#1, 14], #2 + 0.1 Normalize[#2]] &, {words, pca3D}]
-        },
-        Axes -> True,
-        BoxRatios -> {1, 1, 1},
-        AxesStyle -> Directive[Black, Bold],
-        AxesLabel -> {"PC1", "PC2", "PC3"},
-        ViewPoint -> {1.3, -2.4, 2},
-        ImageSize -> Large,
-        PlotRange -> All
-    ];
-    
-    (* Return the graphics *)
-    graphics
-]
-
-
 visualizeWordVectors2D[words_, embeddings_] := Module[
     {pca2D, colors, distanceVector},
-
+	
+	If[Length[words] == 0 || Length[embeddings] == 0,
+		Return[Graphics[{}, ImageSize -> Large]]
+	];
+	
     (* Perform PCA for dimensionality reduction *)
     pca2D = PrincipalComponents[embeddings][[All, 1 ;; 2]];
 
@@ -138,9 +160,9 @@ getEmbedding[word_] := Module[
     (* Try querying the network *)
     Quiet[
         Check[
-            vector = $net[wordLower];
-            Return[vector], (* Return the vector if it exists *)
-            Return[None]    (* Return None if an error occurs or vector doesn't exist *)
+            $net[wordLower],
+            MessageDialog["The word \"" <> word <> "\" does not have a representation."];
+            Return[None]
         ]
     ]
 ]
