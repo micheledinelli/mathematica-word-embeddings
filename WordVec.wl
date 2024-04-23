@@ -188,21 +188,37 @@ checkWordNetQ[word_] := Module[
 ]
 
 
-(* RandomWordFromArray, prende un array di parole e ritorna una parola, 
-dato lo stesso array viene restituito sempre lo stesso output *)
-(* IN: array_List *)
+(* Get a random word starting from an array with n words *)
+(* IN: array *)
 RandomWordFromArray[array_List] := Module[
-   {seed},
-   seed = Hash[array, "SHA256"];
-   SeedRandom[seed];
-   (* Return the generated word from the hash of the array *)
-   RandomChoice[WordList[]]
+   {seed, myWord},
+   
+   BlockRandom[
+	   (* Creating the random seed by vector hashing *)
+	   seed = Hash[array, "SHA256"];
+	   SeedRandom[seed];
+	   
+	   (* Generate a word from the hash of the array *)
+	   myWord = RandomChoice[WordList[]];
+	   
+	   (* Check on $net *)
+	   (* ... *)
+   ];
+   
+   (* Return the generated word *)
+   myWord
 ]
 
 
+(* Get the embedding of the random word generated from the word array *)
+(* IN: array *)
 EmbeddedWordFromArray[array_List] := Module[
 	{randomWordToEmbed},
+	
+	(* Create random word *)
 	randomWordToEmbed = RandomWordFromArray[array];
+	
+	(* Return embedded random word *)
 	getEmbedding[randomWordToEmbed]
 ]
 
