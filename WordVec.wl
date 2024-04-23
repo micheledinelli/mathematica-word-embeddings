@@ -28,9 +28,11 @@ Begin["`Private`"];
 
 (*Load the model network*)
 $net = NetModel["ConceptNet Numberbatch Word Vectors V17.06 (Raw Model)"];
+$list = {"dog", "cat", "mouse"};
+$e = embeddedWordFromArray[$list];
 
 
-Main[] := createDemo[]
+Main[] := visualizeWordVectors2D[$list, $e]
 
 
 createDemo[] := DynamicModule[
@@ -105,33 +107,35 @@ generateRandomWord[seed_] := Module[
 
 
 visualizeWordVectors2D[words_, embeddings_] := Module[
-    {pca2D, colors, distanceVector},
-	
-	If[Length[words] == 0 || Length[embeddings] == 0,
-		Return[Graphics[{}, ImageSize -> Large]]
-	];
-	
-    (* Perform PCA for dimensionality reduction *)
-    pca2D = PrincipalComponents[embeddings][[All, 1 ;; 2]];
+  {pca2D, colors, graphics},
 
-    (* Define colors for each word *)
-    colors = ColorData[97] /@ Range[Length[words]];
+  If[Length[words] == 0 || Length[embeddings] == 0,
+    Return[Graphics[{}, ImageSize -> Large]]
+  ];
 
-    (* Plot the vectors in a 2D space with arrows representing the embeddings *)
-    graphics = Graphics[
-        {
-            MapThread[{Thick, #1, Arrow[{{0, 0}, #2}]} &, {colors, pca2D}],
-            MapThread[Text[Style[#1, 14], #2 + 0.1 Normalize[#2]] &, {words, pca2D}]
-        },
-        Axes -> True,
-        AspectRatio -> 1,
-        AxesStyle -> Directive[Black, Bold],
-        AxesLabel -> {"PC1", "PC2"},
-        ImageSize -> Large
-    ];
-    (* Return the graphics *)
-    graphics
-]
+  (* Perform PCA for dimensionality reduction *)
+  pca2D = PrincipalComponents[embeddings][[All, 1 ;; 2]];
+
+  (* Define colors for each word *)
+  colors = ColorData[97] /@ Range[Length[words]];
+
+  (* Plot the word vectors in a 2D space *)
+  graphics = Graphics[
+    {
+      PointSize[0.02],
+      Transpose[{colors, Point /@ pca2D}],
+      MapThread[Text[Style[#1, 14, #2], #3] &, {words, colors, pca2D}]
+    },
+    Axes -> True,
+    AspectRatio -> 1,
+    Frame -> True,
+    FrameLabel -> {"PC1", "PC2"},
+    ImageSize -> Large
+  ];
+
+  (* Return the graphics *)
+  Return[graphics]
+];
 
 
 (* Calculate distance between two words based on their embeddings *)
