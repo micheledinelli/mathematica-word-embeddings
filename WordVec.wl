@@ -83,21 +83,24 @@ createDemo[] := DynamicModule[
 ]
 
 
-(* Generates a random word given a seed *)
+(* Generates a random word that could be embedded, given a seed *)
 (* IN: seed *)
-randomWord[seed_] := Module[
-    {random},
+generateRandomWord[seed_] := Module[
+    {randomWord,randomList,n},
 
     (* BlockRandom temporarily changes the random number generation within its scope *)
     BlockRandom[
         (* SeedRandom sets the seed for random number generation *)
         SeedRandom[seed];
+        
         (* RandomChoice selects a random word from the WordList[] *)
-        random = RandomChoice[WordList[]];
+        (* + Check on embeddable words *)
+        n=1;
+        While[checkWordNetQ[randomWord]=False,randomList=RandomChoice[WordList[],n];randomWord=Part[randomList,n]];
     ];
 
     (* Convert the randomly chosen word to lowercase and return it *)
-    ToLowerCase[random]
+    ToLowerCase[randomWord]
 ]
 
 
@@ -132,7 +135,7 @@ visualizeWordVectors2D[words_, embeddings_] := Module[
 
 
 (* Calculate distance between two words based on their embeddings *)
-Distance[word1_, word2_] := Module[
+distance[word1_, word2_] := Module[
     {embOne, embTwo},
 
     (* Get embeddings for the words *)
@@ -190,7 +193,7 @@ checkWordNetQ[word_] := Module[
 
 (* Get a random word starting from an array with n words *)
 (* IN: array *)
-RandomWordFromArray[array_List] := Module[
+randomWordFromArray[array_List] := Module[
    {seed, myWord},
    
    BlockRandom[
@@ -199,10 +202,7 @@ RandomWordFromArray[array_List] := Module[
 	   SeedRandom[seed];
 	   
 	   (* Generate a word from the hash of the array *)
-	   myWord = RandomChoice[WordList[]];
-	   
-	   (* Check on $net *)
-	   (* ... *)
+	   myWord = generateRandomWord[seed];
    ];
    
    (* Return the generated word *)
@@ -212,11 +212,11 @@ RandomWordFromArray[array_List] := Module[
 
 (* Get the embedding of the random word generated from the word array *)
 (* IN: array *)
-EmbeddedWordFromArray[array_List] := Module[
+embeddedWordFromArray[array_List] := Module[
 	{randomWordToEmbed},
 	
 	(* Create random word *)
-	randomWordToEmbed = RandomWordFromArray[array];
+	randomWordToEmbed = randomWordFromArray[array];
 	
 	(* Return embedded random word *)
 	getEmbedding[randomWordToEmbed]
