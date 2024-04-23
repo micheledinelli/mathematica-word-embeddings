@@ -96,7 +96,7 @@ generateRandomWord[seed_] := Module[
         (* RandomChoice selects a random word from the WordList[] *)
         (* + Check on embeddable words *)
         n=1;
-        While[checkWordNetQ[randomWord]=False,randomList=RandomChoice[WordList[],n];randomWord=Part[randomList,n]];
+        While[checkWordNetQ[randomWord]==False,randomList=RandomChoice[WordList[],n];randomWord=Part[randomList,n]];
     ];
 
     (* Convert the randomly chosen word to lowercase and return it *)
