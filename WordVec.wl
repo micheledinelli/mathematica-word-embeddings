@@ -18,7 +18,6 @@ BeginPackage["WordVec`"];
 
 
 Main::usage = "Main[] main routine of the WordVec package";
-Distance::usage = "Distance[word1, word2] returns the euclidian distance between the embeddings of the two words";
 
 
 Begin["`Private`"];
@@ -37,28 +36,141 @@ Main[] := createDemo[]
 
 
 createDemo[] := DynamicModule[
-    {myList = {}, embeddingList = {}, wordInput, addWordToList},
-    
-    (* Helper functions *)
-    addWordToList[] := DynamicModule[{},
-        (* Check if the word is valid *)
-        If[checkWord[wordInput],
-            AppendTo[myList, wordInput];
-            AppendTo[embeddingList, getEmbedding[wordInput]];
-        ];
-    ];
-    
+    {words = {}, wordInput, 
+    exerciseWord, exerciseMode = False,
+    hints = {}},
+
     (* User interface *)
     Panel[
-	    Column[{InputField[Dynamic[wordInput], String, ContinuousAction -> True], 
-	        Row[{
-	            Button["Add", addWordToList[]; wordInput = ""], 
-	            Button["Hint", Print[getTopNNearest[Last[myList], 20]]]}
-	        ], 
-	        Dynamic[myList] 
-	    }]
-	]
+        Column[{
+            InputField[Dynamic[wordInput], String, ContinuousAction -> True], 
+            Row[{
+                Button["Add", 
+                    If[checkWord[wordInput],
+                        AppendTo[words, wordInput];
+                    ]; 
+                    wordInput = ""],
+                Dynamic[Button["Hint", Print[getTopNNearest[exerciseWord, 20]], Enabled -> exerciseMode === True]],
+                Dynamic[Button["Generate exercise", 
+                    exerciseWord = randomWordFromArray[words];
+                    exerciseMode = True,
+                    Enabled -> Length[words] > 0 && exerciseMode === False
+                ]],
+                Button["Show solution", 
+                    MessageDialog["TODO"],
+                    Enabled -> exerciseMode === True
+                ],
+                Button["Reset", 
+                    words = {};
+                    exerciseWord = {};
+                    exerciseMode = False;
+                ]
+            }],
+            Dynamic@words,
+            Dynamic@visualizeWordVectors3D[words, exerciseWord, exerciseMode]
+        }]
+    ]
 ]
+
+
+visualizeWordVectors3D[words_, exerciseWord_, exerciseMode_: False, hints_:{}] := Module[
+    {pca3D, colors, embeddings, graphics},
+	
+	If[exerciseMode === False, 
+		Return[showStandardPlot[words]],
+		Return[showExercisePlot[words, exerciseWord, hints]]
+	];
+]
+
+
+
+showStandardPlot[words_] := Module[
+    {pca3D, colors, embeddings, graphics},
+	
+    If[Length[words] == 0,
+        Return[Graphics3D[{}, ImageSize -> Large]]
+    ];
+    
+    (* Define colors for each word *)
+    colors = ColorData[97] /@ Range[Length[words]];
+
+	(* Get the embeddings *)
+	embeddings = $word2vec /@ words;
+	
+    (* Perform PCA for dimensionality reduction *)
+    pca3D = PrincipalComponents[embeddings][[All, 1 ;; 3]];
+    
+    (* Plot the vectors in a 3D space with arrows representing the embeddings *)
+    graphics = Graphics3D[
+        {
+            MapThread[{Thick, #1, Arrow[{{0, 0, 0}, #2}]} &, {colors, pca3D}],
+            MapThread[Text[Style[#1, 14], #2 + 0.1 Normalize[#2]] &, {words, pca3D}]
+        },
+        Axes -> True,
+        AxesLabel -> {"PC1", "PC2", "PC3"},
+        BoxRatios -> {1, 1, 1},
+        AxesStyle -> Directive[Black, Bold],
+        ImageSize -> Large
+    ];
+
+    (* Return the graphics *)
+    Return[graphics]
+]
+
+
+
+showExercisePlot[words_, exerciseWord_, hints_: {}] := Module[
+	{embeddings, exerciseEmbedding, wordLabels, exercisePoint, pca3D, index, 
+	pca3DWithoutExWord, wordLabelsWithoutExWord, graphics},
+  
+	  colors = ColorData[97] /@ Range[Length[words]];
+	  
+	  (* Get the embeddings for all words *)
+	  embeddings = Map[$word2vec, words];
+	  
+	  (* Get the embedding for the exercise word *)
+	  exerciseEmbedding = $word2vec[exerciseWord];
+	  
+	  (* Extract the word labels *)
+	  wordLabels = Append[words, exerciseWord];
+	  
+	  If[Length[hints] > 0,
+	      hintsEmbeddings = Map[$word2vec, words];
+	      embeddings = Join[embeddings, hintsEmbeddings];
+	      wordLabels = Join[wordLabels, hints];
+	  ];
+	  
+	  (* Combine the embeddings with the exercise embedding *)
+	  embeddings = Append[embeddings, exerciseEmbedding];
+	  
+	  (* Perform PCA for dimensionality reduction *)
+	  pca3D = PrincipalComponents[embeddings][[All, 1 ;; 3]];
+	  
+	  (* Find the index of the exerciseWord in wordLabels *)
+	  index = Position[wordLabels, exerciseWord][[1, 1]];
+	  
+	  (* Remove the corresponding element from pca3D *)
+	  pca3DWithoutExWord = Delete[pca3D, index];
+	  
+	  (* Remove the exerciseWord from wordLabels *)
+	  wordLabelsWithoutExWord = Delete[wordLabels, index];
+	  
+	  (* Plot the PCA-transformed embeddings and their corresponding words *)
+	  graphics = Graphics3D[{
+	      MapThread[{Thick, #1, Arrow[{{0, 0, 0}, #2}]} &, {colors, pca3DWithoutExWord}],
+	      MapThread[Text[Style[#1, 14], #2 + 0.1 Normalize[#2]] &, {wordLabelsWithoutExWord, pca3DWithoutExWord}],
+	      {Red, PointSize[Large], Point[pca3D[[index]]]}
+	    }, 
+	    Axes -> True, 
+	    AxesLabel -> {"PC1", "PC2", "PC3"}, 
+	    BoxRatios -> {1, 1, 1}, 
+	    AxesStyle -> Directive[Black, Bold], 
+	    ImageSize -> Large
+	  ];
+	  graphics
+]
+
+
 
 
 (* Generates a random word that could be embedded, given a seed *)
@@ -74,61 +186,11 @@ generateRandomWord[seed_] := Module[
         (* RandomChoice selects a random word from the WordList[] *)
         (* + Check on embeddable words *)
         n=1;
-        While[checkWord[randomWord]==False,randomList=RandomChoice[WordList[],n];randomWord=Part[randomList,n]];
+        While[checkWord[randomWord, Verbose -> False]==False,randomList=RandomChoice[WordList[],n];randomWord=Part[randomList,n]];
     ];
 
     (* Convert the randomly chosen word to lowercase and return it *)
     ToLowerCase[randomWord]
-]
-
-
-visualizeWordVectors2D[words_, embeddings_] := Module[
-  {pca2D, colors, graphics},
-
-  If[Length[words] == 0 || Length[embeddings] == 0,
-    Return[Graphics[{}, ImageSize -> Large]]
-  ];
-
-  (* Perform PCA for dimensionality reduction *)
-  pca2D = PrincipalComponents[embeddings][[All, 1 ;; 2]];
-
-  (* Define colors for each word *)
-  colors = ColorData[97] /@ Range[Length[words]];
-
-  (* Plot the word vectors in a 2D space *)
-  graphics = Graphics[
-    {
-      PointSize[0.02],
-      Transpose[{colors, Point /@ pca2D}],
-      MapThread[Text[Style[#1, 14, #2], #3] &, {words, colors, pca2D}]
-    },
-    Axes -> True,
-    AspectRatio -> 1,
-    Frame -> True,
-    FrameLabel -> {"PC1", "PC2"},
-    ImageSize -> Large
-  ];
-
-  (* Return the graphics *)
-  Return[graphics]
-];
-
-
-(* Calculate distance between two words based on their embeddings *)
-distance[word1_, word2_] := Module[
-    {embOne, embTwo},
-
-    (* Get embeddings for the words *)
-    embOne = getEmbedding[word1];
-    embTwo = getEmbedding[word2];
-    
-    visualizeWordVectors2D[{word1, word2}, {embOne, embTwo}, PlotDistance -> True]
-
-    (* Check if embeddings are valid *)
-    If[embOne === None || embTwo === None,
-        Return[None], (* Return None if either embedding is None *)
-        Return[Norm[embOne - embTwo]] (* Calculate Euclidean distance *)
-    ]
 ]
 
 
@@ -170,37 +232,50 @@ getEmbedding[word_] := Module[
 
 	(* Convert the word to lower case *)
 	wordLower = ToLowerCase[word];
-
+	
     (* Check if the word is suitable for being embedded then return the embedding o/w none *)
-	If[checkWord[word], Return[net[wordLower]]; Return[None]];
+	If[checkWord[word], Return[$word2vec[wordLower]]; Return[None]];
 ]
 
 
-(* Checks if a word is a common word in English and has valid embedding representation using Word2Vec *)
-checkWord[word_]:= Module[
-	{wordLower, embeddingExists},
+checkWord[word_, OptionsPattern[{Verbose -> True}]] := Module[
+    {wordLower, embeddingExists, verbose},
 
-	(* Check if the word is an empty string *)
-	If[word==="", MessageDialog["Please enter a non-empty word."]; Return[False]]; 
-	
-	(* Convert the word to lower case *)
-	wordLower = ToLowerCase[word];
-	
-	(* Check if the word as a valid embedding representation *)
-	Quiet[Check[
-		vector = net[wordLower];
-		embeddingExists=True,
-		embeddingExists=False
-	]];
-	
-	(* If the word has not a vector representation shows a message and returns false *)
-	If[!embeddingExists, MessageDialog["Please enter a common english word."]; Return[False]];
-	
-	(* If the word is not in the word list built-in shows a message and returns false *)
-	(* WordList default call is a list of common english words *)
-	If[!MemberQ[WordList[], wordLower], MessageDialog["Please enter a common english word."]; Return[False]];
-	
-	Return[True];
+    (* Extract the value of the Verbose option *)
+    verbose = OptionValue[Verbose];
+
+    (* Check if the word is an empty string *)
+    If[word === "", 
+        If[verbose, MessageDialog["Please enter a non-empty word."]]; 
+        Return[False]
+    ]; 
+
+    (* Convert the word to lower case *)
+    wordLower = ToLowerCase[word];
+
+    (* Check if the word has a valid embedding representation *)
+    Quiet[
+        Check[
+            vector = $net[wordLower];
+            embeddingExists = True,
+            embeddingExists = False
+        ]
+    ];
+
+    (* If the word does not have a vector representation, show a message and return false *)
+    If[!embeddingExists, 
+        If[verbose, MessageDialog["Please enter a common English word."]]; 
+        Return[False]
+    ];
+
+    (* If the word is not in the built-in word list, show a message and return false *)
+    (* WordList default call is a list of common English words *)
+    If[!MemberQ[WordList[], wordLower], 
+        If[verbose, MessageDialog["Please enter a common English word."]]; 
+        Return[False]
+    ];
+
+    Return[True];
 ]
 
 
