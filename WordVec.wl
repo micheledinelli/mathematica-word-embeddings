@@ -154,25 +154,6 @@ distance[word1_, word2_] := Module[
 ]
 
 
-(* Get embedding for a given word *)
-(* IN: word *)
-getEmbedding[word_] := Module[
-    {wordLower, vector},
-
-    (* Convert the input word to lowercase *)
-    wordLower = ToLowerCase[word];
-
-    (* Try querying the network *)
-    Quiet[
-        Check[
-            $net[wordLower],
-            MessageDialog["The word \"" <> word <> "\" does not have a representation."];
-            Return[None]
-        ]
-    ]
-]
-
-
 (* Get a random word starting from an array with n words *)
 (* IN: array *)
 randomWordFromArray[array_List] := Module[
@@ -205,11 +186,23 @@ embeddedWordFromArray[array_List] := Module[
 ]
 
 
+(* Get the vector representation or embedding for a given word *)
+getEmbedding[word_] := Module[
+    {wordLower, vector},
+
+	(* Convert the word to lower case *)
+	wordLower = ToLowerCase[word];
+
+    (* Check if the word is suitable for being embedded then return the embedding o/w none *)
+	If[checkWord[word], Return[net[wordLower]]; Return[None]];
+]
+
+
 (* Checks if a word is a common word in English and has valid embedding representation using Word2Vec *)
 checkWord[word_]:= Module[
 	{wordLower, embeddingExists},
 
-	(*Check if the word is an empty string*)
+	(* Check if the word is an empty string *)
 	If[word==="", MessageDialog["Please enter a non-empty word."]; Return[False]]; 
 	
 	(* Convert the word to lower case *)
