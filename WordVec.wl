@@ -28,57 +28,35 @@ Begin["`Private`"];
 
 (*Load the model network*)
 $net = NetModel["ConceptNet Numberbatch Word Vectors V17.06 (Raw Model)"];
+$words = NetExtract[$net,"Input"][["Labels"]];
+$vecs = Normal@NetExtract[$net, "Weights"];
+$word2vec = AssociationThread[$words -> $vecs];
 
 
-Main[] := Print["HELLO"];
+Main[] := createDemo[]
 
 
 createDemo[] := DynamicModule[
-	{words = {}, embeddings = {}, wordInput, addWordAndEmbedding},
-	
-	addWordAndEmbedding[word_] := DynamicModule[
-		{embedding}, 
-		embedding = getEmbedding[word]; 
-			If[embedding =!= None,
-				AppendTo[words, word];
-				AppendTo[embeddings, embedding];
-			];
-	];
-	
-	Grid[{
-	  {
-	    Column[{
-	      "Choose a word",
-	      Row[{
-	        InputField[Dynamic[wordInput], String, ContinuousAction -> True],
-	        Button["Add word", addWordAndEmbedding[wordInput]; wordInput = ""]
-	      }]
-	    }],
-	    Column[{
-	      "Actions",
-	      Row[{
-	        Button["Generate exercise", addWordAndEmbedding[wordInput]; wordInput = ""],
-	        Button["Clear", addWordAndEmbedding[wordInput]; wordInput = ""]
-	        Button["Show solution", addWordAndEmbedding[wordInput]; wordInput = ""]
-	      }]
+    {myList = {}, embeddingList = {}, wordInput, addWordToList},
+    
+    (* Helper functions *)
+    addWordToList[] := DynamicModule[{},
+        (* Check if the word is valid *)
+        If[checkWord[wordInput],
+            AppendTo[myList, wordInput];
+            AppendTo[embeddingList, getEmbedding[wordInput]];
+        ];
+    ];
+    
+    (* User interface *)
+    Panel[
+	    Column[{InputField[Dynamic[wordInput], String, ContinuousAction -> True], 
+	        Row[{
+	            Button["Add", addWordToList[]; wordInput = ""], 
+	            Button["Hint", Print[getTopNNearest[Last[myList], 20]]]}
+	        ], 
+	        Dynamic[myList] 
 	    }]
-	  },
-	  {
-	    Row[{
-		  "Your words: ",
-		  Dynamic[words]
-	    }], 
-	    SpanFromLeft
-	  },
-	  {
-	    Dynamic[visualizeWordVectors2D[words, embeddings]], 
-	    SpanFromLeft
-	  }
-	}, 
-	Frame -> True, 
-	ItemSize -> Automatic,
-	Dividers -> All,
-	Spacings -> {10, 2}
 	]
 ]
 
@@ -156,7 +134,7 @@ distance[word1_, word2_] := Module[
 
 (* Get a random word starting from an array with n words *)
 (* IN: array *)
-randomWordFromArray[array_List] := Module[
+randomWordFromArray[array_] := Module[
    {seed, myWord},
    
    BlockRandom[
@@ -175,7 +153,7 @@ randomWordFromArray[array_List] := Module[
 
 (* Get the embedding of the random word generated from the word array *)
 (* IN: array *)
-embeddedWordFromArray[array_List] := Module[
+embeddedWordFromArray[array_] := Module[
 	{randomWordToEmbed},
 	
 	(* Create random word *)
@@ -210,7 +188,7 @@ checkWord[word_]:= Module[
 	
 	(* Check if the word as a valid embedding representation *)
 	Quiet[Check[
-		vector=net[wordLower];
+		vector = net[wordLower];
 		embeddingExists=True,
 		embeddingExists=False
 	]];
@@ -223,6 +201,16 @@ checkWord[word_]:= Module[
 	If[!MemberQ[WordList[], wordLower], MessageDialog["Please enter a common english word."]; Return[False]];
 	
 	Return[True];
+]
+
+
+(* Get the n nearest word to a given word according to the embeddings representations *)
+getTopNNearest[word_, n_] := Module[
+	{wordLower, nNearest = {}},
+	(* Converts a word to lower case *)
+	wordLower = ToLowerCase[word];
+	(* Check if the provided word is valid then return the n nearest words *)
+	If[checkWord[word], Return[Nearest[$word2vec, $word2vec[wordLower], n]], None]
 ]
 
 
