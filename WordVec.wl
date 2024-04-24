@@ -28,11 +28,9 @@ Begin["`Private`"];
 
 (*Load the model network*)
 $net = NetModel["ConceptNet Numberbatch Word Vectors V17.06 (Raw Model)"];
-$list = {"dog", "cat", "mouse"};
-$e = embeddedWordFromArray[$list];
 
 
-Main[] := visualizeWordVectors2D[$list, $e]
+Main[] := Print["HELLO"];
 
 
 createDemo[] := DynamicModule[
@@ -98,7 +96,7 @@ generateRandomWord[seed_] := Module[
         (* RandomChoice selects a random word from the WordList[] *)
         (* + Check on embeddable words *)
         n=1;
-        While[checkWordNetQ[randomWord]==False,randomList=RandomChoice[WordList[],n];randomWord=Part[randomList,n]];
+        While[checkWord[randomWord]==False,randomList=RandomChoice[WordList[],n];randomWord=Part[randomList,n]];
     ];
 
     (* Convert the randomly chosen word to lowercase and return it *)
@@ -175,26 +173,6 @@ getEmbedding[word_] := Module[
 ]
 
 
-(* Check whether the net can produce embedding for a given word *)
-(* IN: word *)
-checkWordNetQ[word_] := Module[
-    {wordLower, vector, exists},
-
-    (* Convert the input word to lowercase *)
-    wordLower = ToLowerCase[word];
-
-    (* Try querying the network *)
-    Quiet[Check[
-        vector = $net[wordLower];
-        exists = True,
-        exists = False
-    ]];
-
-    (* Return whether the vectors exist *)
-    exists
-]
-
-
 (* Get a random word starting from an array with n words *)
 (* IN: array *)
 randomWordFromArray[array_List] := Module[
@@ -224,6 +202,34 @@ embeddedWordFromArray[array_List] := Module[
 	
 	(* Return embedded random word *)
 	getEmbedding[randomWordToEmbed]
+]
+
+
+(* Checks if a word is a common word in English and has valid embedding representation using Word2Vec *)
+checkWord[word_]:= Module[
+	{wordLower, embeddingExists},
+
+	(*Check if the word is an empty string*)
+	If[word==="", MessageDialog["Please enter a non-empty word."]; Return[False]]; 
+	
+	(* Convert the word to lower case *)
+	wordLower = ToLowerCase[word];
+	
+	(* Check if the word as a valid embedding representation *)
+	Quiet[Check[
+		vector=net[wordLower];
+		embeddingExists=True,
+		embeddingExists=False
+	]];
+	
+	(* If the word has not a vector representation shows a message and returns false *)
+	If[!embeddingExists, MessageDialog["Please enter a common english word."]; Return[False]];
+	
+	(* If the word is not in the word list built-in shows a message and returns false *)
+	(* WordList default call is a list of common english words *)
+	If[!MemberQ[WordList[], wordLower], MessageDialog["Please enter a common english word."]; Return[False]];
+	
+	Return[True];
 ]
 
 
