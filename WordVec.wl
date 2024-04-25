@@ -1,6 +1,5 @@
 (* ::Package:: *)
 
-(* ::Package:: *)
 (* :Title: WordVec *)
 (* :Context: WordVec` *)
 (* :Author: BF DM HY RM *)
@@ -10,7 +9,7 @@
 (* :Mathematica Version: 13 *)
 (* :History: last modified 27/3/2023 *)
 (* :Keywords: embeddings, vectors, word2vec *)
-(* :Limitations: this is for educational purposes only.  *)
+(* :Limitations: this is for educational purposes only *)
 (* :Requirements: *)
 
 
@@ -24,8 +23,6 @@ Begin["`Private`"];
 
 
 (* Global variables *)
-
-(*Load the model network*)
 $net = NetModel["ConceptNet Numberbatch Word Vectors V17.06 (Raw Model)"];
 $words = NetExtract[$net,"Input"][["Labels"]];
 $vecs = Normal@NetExtract[$net, "Weights"];
@@ -40,17 +37,36 @@ createDemo[] := DynamicModule[
     exerciseWord, exerciseMode = False,
     hints = {}},
 
+	infoAction := (
+        MessageDialog[
+            "This is a demo interface for exploring word embeddings.\n\n" <>
+            "1. Type words in the input field and click 'Add' to add them to your list.\n\n" <>
+            "2. Click 'Hints' to get hints for the current exercise word.\n\n" <>
+            "3. Click 'Generate exercise' to select a random word from your list as the exercise word.\n\n" <>
+            "4. Click 'Show solution' to display the solution (not implemented).\n\n" <>
+            "5. Click 'Reset' to clear the word list and reset the interface."
+        ]
+    );
+
     (* User interface *)
     Panel[
         Column[{
-            InputField[Dynamic[wordInput], String, ContinuousAction -> True], 
             Row[{
-                Button["Add", 
+                Style["Enter a word to discover its representation: ", Bold, 14],
+                InputField[Dynamic[wordInput], String, ContinuousAction -> True],
+                Button["Info", infoAction, BaseStyle -> {FontSize -> 10, FontWeight -> "Bold", Background -> LightBlue}]
+            }],
+            Spacer[10],
+            Row[{
+                Button["Add word", 
                     If[checkWord[wordInput],
                         AppendTo[words, wordInput];
                     ]; 
                     wordInput = ""],
-                Dynamic[Button["Hint", Print[getTopNNearest[exerciseWord, 20]], Enabled -> exerciseMode === True]],
+                Dynamic[Button["Hints", 
+                    hints = getTopNNearest[exerciseWord, 3];
+                    words = Join[words, hints],
+                    Enabled -> exerciseMode === True]],
                 Dynamic[Button["Generate exercise", 
                     exerciseWord = randomWordFromArray[words];
                     exerciseMode = True,
@@ -63,25 +79,30 @@ createDemo[] := DynamicModule[
                 Button["Reset", 
                     words = {};
                     exerciseWord = {};
+                    hints = {};
                     exerciseMode = False;
                 ]
             }],
-            Dynamic@words,
+            Spacer[10],
+            Row[{Style["Your words: ", Bold, 12, Darker@Blue], 
+                Dynamic[Style[Row[words, ", "], Bold, 12]]}],
+            Spacer[10],
+            Row[{Style["Your hints: ", Bold, 12, Darker@Green], 
+                Dynamic[Style[Row[hints, ", "], Bold, 12]]}],
             Dynamic@visualizeWordVectors3D[words, exerciseWord, exerciseMode]
         }]
     ]
 ]
 
 
-visualizeWordVectors3D[words_, exerciseWord_, exerciseMode_: False, hints_:{}] := Module[
+visualizeWordVectors3D[words_, exerciseWord_, exerciseMode_: False] := Module[
     {pca3D, colors, embeddings, graphics},
 	
 	If[exerciseMode === False, 
 		Return[showStandardPlot[words]],
-		Return[showExercisePlot[words, exerciseWord, hints]]
+		Return[showExercisePlot[words, exerciseWord]]
 	];
 ]
-
 
 
 showStandardPlot[words_] := Module[
@@ -119,32 +140,25 @@ showStandardPlot[words_] := Module[
 
 
 
-showExercisePlot[words_, exerciseWord_, hints_: {}] := Module[
+showExercisePlot[words_, exerciseWord_] := Module[
 	{embeddings, exerciseEmbedding, wordLabels, exercisePoint, pca3D, index, 
-	pca3DWithoutExWord, wordLabelsWithoutExWord, graphics},
+    pca3DWithoutExWord, wordLabelsWithoutExWord, graphics},
   
-	  colors = ColorData[97] /@ Range[Length[words]];
-	  
 	  (* Get the embeddings for all words *)
+	  colors = ColorData[97] /@ Range[Length[words]];
 	  embeddings = Map[$word2vec, words];
 	  
 	  (* Get the embedding for the exercise word *)
 	  exerciseEmbedding = $word2vec[exerciseWord];
-	  
-	  (* Extract the word labels *)
-	  wordLabels = Append[words, exerciseWord];
-	  
-	  If[Length[hints] > 0,
-	      hintsEmbeddings = Map[$word2vec, words];
-	      embeddings = Join[embeddings, hintsEmbeddings];
-	      wordLabels = Join[wordLabels, hints];
-	  ];
 	  
 	  (* Combine the embeddings with the exercise embedding *)
 	  embeddings = Append[embeddings, exerciseEmbedding];
 	  
 	  (* Perform PCA for dimensionality reduction *)
 	  pca3D = PrincipalComponents[embeddings][[All, 1 ;; 3]];
+	  
+	  (* Extract the word labels *)
+	  wordLabels = Append[words, exerciseWord];
 	  
 	  (* Find the index of the exerciseWord in wordLabels *)
 	  index = Position[wordLabels, exerciseWord][[1, 1]];
@@ -158,7 +172,7 @@ showExercisePlot[words_, exerciseWord_, hints_: {}] := Module[
 	  (* Plot the PCA-transformed embeddings and their corresponding words *)
 	  graphics = Graphics3D[{
 	      MapThread[{Thick, #1, Arrow[{{0, 0, 0}, #2}]} &, {colors, pca3DWithoutExWord}],
-	      MapThread[Text[Style[#1, 14], #2 + 0.1 Normalize[#2]] &, {wordLabelsWithoutExWord, pca3DWithoutExWord}],
+	      MapThread[Text[Style[#1, 18], #2 + 0.1 Normalize[#2]] &, {wordLabelsWithoutExWord, pca3DWithoutExWord}],
 	      {Red, PointSize[Large], Point[pca3D[[index]]]}
 	    }, 
 	    Axes -> True, 
@@ -169,7 +183,6 @@ showExercisePlot[words_, exerciseWord_, hints_: {}] := Module[
 	  ];
 	  graphics
 ]
-
 
 
 
@@ -279,13 +292,17 @@ checkWord[word_, OptionsPattern[{Verbose -> True}]] := Module[
 ]
 
 
-(* Get the n nearest word to a given word according to the embeddings representations *)
 getTopNNearest[word_, n_] := Module[
-	{wordLower, nNearest = {}},
-	(* Converts a word to lower case *)
-	wordLower = ToLowerCase[word];
-	(* Check if the provided word is valid then return the n nearest words *)
-	If[checkWord[word], Return[Nearest[$word2vec, $word2vec[wordLower], n]], None]
+    {wordLower, nNearest = {}},
+    (* Converts a word to lower case *)
+    wordLower = ToLowerCase[word];
+    (* Check if the provided word is valid then return the n nearest words *)
+    If[checkWord[word],
+        nNearest = DeleteCases[Nearest[$word2vec, $word2vec[wordLower], n + 1], wordLower]; 
+        (* Remove the input word if it's included *)
+        Return[nNearest],
+        None
+    ]
 ]
 
 
