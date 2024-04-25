@@ -51,18 +51,19 @@ createDemo[] := DynamicModule[
     (* User interface *)
     Panel[
         Column[{
+            Button["Info", infoAction, BaseStyle -> {FontSize -> 10, FontWeight -> "Bold", Background -> LightBlue}],
+            Spacer[20],
             Row[{
                 Style["Enter a word to discover its representation: ", Bold, 14],
                 InputField[Dynamic[wordInput], String, ContinuousAction -> True],
-                Button["Info", infoAction, BaseStyle -> {FontSize -> 10, FontWeight -> "Bold", Background -> LightBlue}]
-            }],
-            Spacer[10],
-            Row[{
                 Button["Add word", 
                     If[checkWord[wordInput],
                         AppendTo[words, wordInput];
                     ]; 
-                    wordInput = ""],
+                    wordInput = ""]
+            }],
+            Spacer[10],
+            Row[{
                 Dynamic[Button["Hints", 
                     hints = getTopNNearest[exerciseWord, 3];
                     words = Join[words, hints],
@@ -72,10 +73,10 @@ createDemo[] := DynamicModule[
                     exerciseMode = True,
                     Enabled -> Length[words] > 0 && exerciseMode === False
                 ]],
-                Button["Show solution", 
-                    MessageDialog["TODO"],
+                Dynamic[Button["Show solution", 
+                    Print[exerciseWord],
                     Enabled -> exerciseMode === True
-                ],
+                ]],
                 Button["Reset", 
                     words = {};
                     exerciseWord = {};
@@ -199,7 +200,7 @@ generateRandomWord[seed_] := Module[
         (* RandomChoice selects a random word from the WordList[] *)
         (* + Check on embeddable words *)
         n=1;
-        While[checkWord[randomWord, Verbose -> False]==False,randomList=RandomChoice[WordList[],n];randomWord=Part[randomList,n]];
+        While[checkWord[randomWord, Verbose -> False]==False,randomList=RandomChoice[WordList["Noun"],n];randomWord=Part[randomList,n]];
     ];
 
     (* Convert the randomly chosen word to lowercase and return it *)
@@ -283,7 +284,7 @@ checkWord[word_, OptionsPattern[{Verbose -> True}]] := Module[
 
     (* If the word is not in the built-in word list, show a message and return false *)
     (* WordList default call is a list of common English words *)
-    If[!MemberQ[WordList[], wordLower], 
+    If[!MemberQ[WordList["Noun"], wordLower], 
         If[verbose, MessageDialog["Please enter a common English word."]]; 
         Return[False]
     ];
