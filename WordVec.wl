@@ -33,8 +33,10 @@ Main[] := createDemo[]
 
 
 createDemo[] := DynamicModule[
-    {words = {}, wordInput, 
-    exerciseWord, exerciseMode = False,
+    {words = Table[generateRandomWord[seed], {seed, 5}], 
+    wordInput, 
+    exerciseWord, 
+    exerciseMode = False,
     hints = {}},
 
 	infoAction := (
@@ -51,11 +53,12 @@ createDemo[] := DynamicModule[
     (* User interface *)
     Panel[
         Column[{
-            Button["Info", infoAction, BaseStyle -> {FontSize -> 10, FontWeight -> "Bold", Background -> LightBlue}],
+            Row[{Button["Info", infoAction, BaseStyle -> {FontSize -> 14}]}],
             Spacer[20],
+            Row[{Style["Enter a word to view its representation: ", 14]}, Alignment -> Center],
             Row[{
-                Style["Enter a word to discover its representation: ", Bold, 14],
                 InputField[Dynamic[wordInput], String, ContinuousAction -> True],
+                Spacer[{5, 5}],
                 Button["Add word", 
                     If[checkWord[wordInput],
                         AppendTo[words, wordInput];
@@ -85,10 +88,20 @@ createDemo[] := DynamicModule[
                 ]
             }],
             Spacer[10],
-            Row[{Style["Your words: ", Bold, 12, Darker@Blue], 
-                Dynamic[Style[Row[words, ", "], Bold, 12]]}],
+            Row[{
+			  Style["Words: ", Bold, 12, Darker@Blue],
+			  Dynamic[
+			   Grid[Partition[
+			     Tooltip[
+			        Style[#, Bold, 12, "Hyperlink", Black],
+			        WordData[#, "Definitions"]
+			     ] & /@ words, 5, 5, {1, -1}, {}],
+			     Spacings -> {1, 1}
+			   ]
+			  ]
+			}],
             Spacer[10],
-            Row[{Style["Your hints: ", Bold, 12, Darker@Green], 
+            Row[{Style["Hints: ", Bold, 12, Darker@Green], 
                 Dynamic[Style[Row[hints, ", "], Bold, 12]]}],
             Dynamic@visualizeWordVectors3D[words, exerciseWord, exerciseMode]
         }]
@@ -108,18 +121,18 @@ visualizeWordVectors3D[words_, exerciseWord_, exerciseMode_: False] := Module[
 
 showStandardPlot[words_] := Module[
     {pca3D, colors, embeddings, graphics},
-	
+    
     If[Length[words] == 0,
         Return[Graphics3D[{}, ImageSize -> Large]]
     ];
     
     (* Define colors for each word *)
     colors = ColorData[97] /@ Range[Length[words]];
-
-	(* Get the embeddings *)
-	embeddings = $word2vec /@ words;
-	
-    (* Perform PCA for dimensionality reduction *)
+    
+    (* Get the embeddings *)
+    embeddings = $word2vec /@ words;
+    
+    (* Perform PCA for dimensionality reduction to 3D *)
     pca3D = PrincipalComponents[embeddings][[All, 1 ;; 3]];
     
     (* Plot the vectors in a 3D space with arrows representing the embeddings *)
@@ -130,61 +143,57 @@ showStandardPlot[words_] := Module[
         },
         Axes -> True,
         AxesLabel -> {"PC1", "PC2", "PC3"},
-        BoxRatios -> {1, 1, 1},
         AxesStyle -> Directive[Black, Bold],
         ImageSize -> Large
     ];
-
+    
     (* Return the graphics *)
     Return[graphics]
 ]
 
 
-
 showExercisePlot[words_, exerciseWord_] := Module[
-	{embeddings, exerciseEmbedding, wordLabels, exercisePoint, pca3D, index, 
+    {embeddings, exerciseEmbedding, wordLabels, exercisePoint, pca3D, index, 
     pca3DWithoutExWord, wordLabelsWithoutExWord, graphics},
-  
-	  (* Get the embeddings for all words *)
-	  colors = ColorData[97] /@ Range[Length[words]];
-	  embeddings = Map[$word2vec, words];
-	  
-	  (* Get the embedding for the exercise word *)
-	  exerciseEmbedding = $word2vec[exerciseWord];
-	  
-	  (* Combine the embeddings with the exercise embedding *)
-	  embeddings = Append[embeddings, exerciseEmbedding];
-	  
-	  (* Perform PCA for dimensionality reduction *)
-	  pca3D = PrincipalComponents[embeddings][[All, 1 ;; 3]];
-	  
-	  (* Extract the word labels *)
-	  wordLabels = Append[words, exerciseWord];
-	  
-	  (* Find the index of the exerciseWord in wordLabels *)
-	  index = Position[wordLabels, exerciseWord][[1, 1]];
-	  
-	  (* Remove the corresponding element from pca3D *)
-	  pca3DWithoutExWord = Delete[pca3D, index];
-	  
-	  (* Remove the exerciseWord from wordLabels *)
-	  wordLabelsWithoutExWord = Delete[wordLabels, index];
-	  
-	  (* Plot the PCA-transformed embeddings and their corresponding words *)
-	  graphics = Graphics3D[{
-	      MapThread[{Thick, #1, Arrow[{{0, 0, 0}, #2}]} &, {colors, pca3DWithoutExWord}],
-	      MapThread[Text[Style[#1, 18], #2 + 0.1 Normalize[#2]] &, {wordLabelsWithoutExWord, pca3DWithoutExWord}],
-	      {Red, PointSize[Large], Point[pca3D[[index]]]}
-	    }, 
-	    Axes -> True, 
-	    AxesLabel -> {"PC1", "PC2", "PC3"}, 
-	    BoxRatios -> {1, 1, 1}, 
-	    AxesStyle -> Directive[Black, Bold], 
-	    ImageSize -> Large
-	  ];
-	  graphics
+    
+    (* Get the embeddings for all words *)
+    colors = ColorData[97] /@ Range[Length[words]];
+    embeddings = Map[$word2vec, words];
+    
+    (* Get the embedding for the exercise word *)
+    exerciseEmbedding = $word2vec[exerciseWord];
+    
+    (* Combine the embeddings with the exercise embedding *)
+    embeddings = Append[embeddings, exerciseEmbedding];
+    
+    (* Perform PCA for dimensionality reduction to 3D *)
+    pca3D = PrincipalComponents[embeddings][[All, 1 ;; 3]];
+    
+    (* Extract the word labels *)
+    wordLabels = Append[words, exerciseWord];
+    
+    (* Find the index of the exerciseWord in wordLabels *)
+    index = Position[wordLabels, exerciseWord][[1, 1]];
+    
+    (* Remove the corresponding element from pca3D *)
+    pca3DWithoutExWord = Delete[pca3D, index];
+    
+    (* Remove the exerciseWord from wordLabels *)
+    wordLabelsWithoutExWord = Delete[wordLabels, index];
+    
+    (* Plot the PCA-transformed embeddings and their corresponding words *)
+    graphics = Graphics3D[{
+        MapThread[{Thick, #1, Arrow[{{0, 0, 0}, #2}]} &, {colors, pca3DWithoutExWord}],
+        MapThread[Text[Style[#1, 18], #2 + 0.1 Normalize[#2]] &, {wordLabelsWithoutExWord, pca3DWithoutExWord}],
+        {Red, PointSize[Large], Point[pca3D[[index]]]}
+        }, 
+        Axes -> True, 
+        AxesLabel -> {"PC1", "PC2", "PC3"}, 
+        AxesStyle -> Directive[Black, Bold], 
+        ImageSize -> Large
+    ];
+    graphics
 ]
-
 
 
 (* Generates a random word that could be embedded, given a seed *)
