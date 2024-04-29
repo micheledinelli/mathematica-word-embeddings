@@ -33,11 +33,15 @@ Main[] := createDemo[]
 
 
 createDemo[] := DynamicModule[
-    {words = Table[generateRandomWord[seed], {seed, 5}], 
-    wordInput, 
-    exerciseWord, 
-    exerciseMode = False,
-    hints = {}},
+    {
+	    globalSeed = 42,
+	    words = Table[generateRandomWord[seed], {seed, 42, 46}], 
+	    wordInput, 
+	    exerciseWord, 
+	    exerciseMode = False,
+	    exerciseWords = {},
+	    hints = {}
+    },
 
 	infoAction := (
         MessageDialog[
@@ -52,10 +56,43 @@ createDemo[] := DynamicModule[
 
     (* User interface *)
     Panel[
-        Column[{
+        Grid[{
+	        {Style["PLAY WITH WORD EMBEDDINGS", FontSize -> 18], SpanFromLeft},
+	        {Button["READ A SMALL GUIDE", infoAction], SpanFromLeft},
+	        {Style["AVAILABLE ACTIONS", FontSize -> 12], SpanFromLeft},
+	        {
+	            Grid[{
+	                {Button["GENERATE EXERCISE"], Button["HINTS"]},
+	                {Button["SHOW SOLUTION"], Button["RESET"]}
+	            }], SpanFromLeft
+	        },
+	        {Style["Write a word and view its representation", FontSize -> 12, Darker@Blue], SpanFromLeft},
+	        {
+		        Row[{
+	                InputField[Dynamic[wordInput], String, ContinuousAction -> True],
+	                Button["Add word", 
+	                    If[checkWord[wordInput],
+	                        AppendTo[words, wordInput];
+	                    ]; 
+	                    wordInput = ""]
+	            }], SpanFromLeft
+	        },
+	        {
+	            Dynamic@visualizeWordVectors3D[words, exerciseWord, exerciseMode],
+	            SpanFromLeft
+	        },
+	        {Dynamic[Row[{Tooltip[Style[#, Bold, 12, "Hyperlink", Black], WordData[#, "Definitions"]] & /@ words}]], SpanFromLeft}
+        },
+        ItemSize -> 30,
+        Alignment -> Center,
+        Spacings -> {Automatic, 2}
+        ]
+        
+        (*Column[{
+            Row[{"Hello"}, Alignment -> Right]
             Row[{Button["Info", infoAction, BaseStyle -> {FontSize -> 14}]}],
             Spacer[20],
-            Row[{Style["Enter a word to view its representation: ", 14]}, Alignment -> Center],
+            Row[{Style["Enter a word to view its representation: ", 14]}],
             Row[{
                 InputField[Dynamic[wordInput], String, ContinuousAction -> True],
                 Spacer[{5, 5}],
@@ -70,19 +107,21 @@ createDemo[] := DynamicModule[
                 Dynamic[Button["Hints", 
                     hints = getTopNNearest[exerciseWord, 3];
                     words = Join[words, hints],
-                    Enabled -> exerciseMode === True]],
+                    Enabled -> exerciseMode === True
+                 ]],
                 Dynamic[Button["Generate exercise", 
-                    exerciseWord = randomWordFromArray[words];
+                    exerciseWords = randomWordFromWords[words, 3];
                     exerciseMode = True,
                     Enabled -> Length[words] > 0 && exerciseMode === False
                 ]],
                 Dynamic[Button["Show solution", 
-                    Print[exerciseWord],
+                    MessageDialog[resolveExercise[exerciseWords[[1]], exerciseWords[[2]], exerciseWords[[3]]]],
                     Enabled -> exerciseMode === True
                 ]],
                 Button["Reset", 
                     words = {};
                     exerciseWord = {};
+                    exerciseWords = {};
                     hints = {};
                     exerciseMode = False;
                 ]
@@ -91,20 +130,21 @@ createDemo[] := DynamicModule[
             Row[{
 			  Style["Words: ", Bold, 12, Darker@Blue],
 			  Dynamic[
-			   Grid[Partition[
+			   Row[{
 			     Tooltip[
 			        Style[#, Bold, 12, "Hyperlink", Black],
 			        WordData[#, "Definitions"]
-			     ] & /@ words, 5, 5, {1, -1}, {}],
-			     Spacings -> {1, 1}
-			   ]
+			     ] & /@ words
+			   }]
 			  ]
 			}],
             Spacer[10],
             Row[{Style["Hints: ", Bold, 12, Darker@Green], 
                 Dynamic[Style[Row[hints, ", "], Bold, 12]]}],
-            Dynamic@visualizeWordVectors3D[words, exerciseWord, exerciseMode]
-        }]
+            Dynamic@visualizeWordVectors3D[words, exerciseWord, exerciseMode],
+            Dynamic@visualizeExercise[exerciseWords]
+		
+        }]*)
     ]
 ]
 
@@ -112,10 +152,11 @@ createDemo[] := DynamicModule[
 visualizeWordVectors3D[words_, exerciseWord_, exerciseMode_: False] := Module[
     {pca3D, colors, embeddings, graphics},
 	
-	If[exerciseMode === False, 
-		Return[showStandardPlot[words]],
+	Return[showStandardPlot[words]]
+	(*If[exerciseMode === False, 
+		,
 		Return[showExercisePlot[words, exerciseWord]]
-	];
+	];*)
 ]
 
 
@@ -196,10 +237,32 @@ showExercisePlot[words_, exerciseWord_] := Module[
 ]
 
 
+visualizeExercise[words_] := Module[
+	{},
+	If[Length[words] != 3,
+        Return[Row[{}]]
+    ];
+    
+    Column[{
+        Row[{words[[1]], " is to ", words[[2]], " as ", words[[3]], " is to "}],
+        Row[{
+            InputField["text here"]
+        }]
+    }]
+]
+
+
+resolveExercise[word1_, word2_, word3_] := Module[
+	{},
+	Print[word1, word2, word3];
+	Nearest[$word2vec, $word2vec[word1] - $word2vec[word2] + $word2vec[word3], 5][[5]]
+]
+
+
 (* Generates a random word that could be embedded, given a seed *)
 (* IN: seed *)
 generateRandomWord[seed_] := Module[
-    {randomWord,randomList,n},
+    {randomWord, randomList, n},
 
     (* BlockRandom temporarily changes the random number generation within its scope *)
     BlockRandom[
@@ -234,6 +297,9 @@ randomWordFromArray[array_] := Module[
    (* Return the generated word *)
    myWord
 ]
+
+
+randomWordFromWords[words_, n_] := RandomSample[words, n]
 
 
 (* Get the embedding of the random word generated from the word array *)
