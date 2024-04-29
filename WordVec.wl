@@ -34,133 +34,112 @@ Main[] := createDemo[]
 
 createDemo[] := DynamicModule[
     {
-	    globalSeed = 42,
 	    words = Table[generateRandomWord[seed], {seed, 42, 46}], 
-	    wordInput, 
-	    exerciseWord, 
+	    wordInput,  
 	    exerciseMode = False,
-	    exerciseWords = {},
-	    hints = {}
+	    targetWord,
+	    hints = {},
+	    numberOfHints = {}
     },
 
 	infoAction := (
         MessageDialog[
             "This is a demo interface for exploring word embeddings.\n\n" <>
-            "1. Type words in the input field and click 'Add' to add them to your list.\n\n" <>
-            "2. Click 'Hints' to get hints for the current exercise word.\n\n" <>
-            "3. Click 'Generate exercise' to select a random word from your list as the exercise word.\n\n" <>
-            "4. Click 'Show solution' to display the solution (not implemented).\n\n" <>
+            "1. GENERATE EXERCISE \n\n" <>
+            "2. SHOW HINTS \n\n" <>
+            "3. SHOW SOLUTTION \n\n" <>
+            "4. RESET \n\n" <>
             "5. Click 'Reset' to clear the word list and reset the interface."
         ]
     );
-
+    
     (* User interface *)
     Panel[
         Grid[{
-	        {Style["PLAY WITH WORD EMBEDDINGS", FontSize -> 18], SpanFromLeft},
-	        {Button["READ A SMALL GUIDE", infoAction], SpanFromLeft},
-	        {Style["AVAILABLE ACTIONS", FontSize -> 12], SpanFromLeft},
-	        {
-	            Grid[{
-	                {Button["GENERATE EXERCISE"], Button["HINTS"]},
-	                {Button["SHOW SOLUTION"], Button["RESET"]}
-	            }], SpanFromLeft
-	        },
-	        {Style["Write a word and view its representation", FontSize -> 12, Darker@Blue], SpanFromLeft},
+	        {Style["WORD EMBEDDINGS", FontSize -> 18], SpanFromLeft},
+	        {Row[{Button["READ A SMALL GUIDE", infoAction], ""}], SpanFromLeft},
 	        {
 		        Row[{
-	                InputField[Dynamic[wordInput], String, ContinuousAction -> True],
-	                Button["Add word", 
+	                InputField[Dynamic[wordInput], String, ContinuousAction -> True, FieldHint -> "type a word", Enabled -> exerciseMode == False],
+	                Dynamic[Button["ADD TO PLOT", 
 	                    If[checkWord[wordInput],
 	                        AppendTo[words, wordInput];
 	                    ]; 
-	                    wordInput = ""]
+	                    wordInput = "",
+	                    Enabled -> exerciseMode == False
+	                ]]
 	            }], SpanFromLeft
 	        },
+	        {Dynamic@drawPlot[words, targetWord, exerciseMode], SpanFromLeft},
+	        {Style["YOUR WORDS (HOVER FOR DEFINITIONS)", FontSize -> 12, Underlined], SpanFromLeft},
+	        {Dynamic[Row[Tooltip[Style[ToUpperCase[#], Black, Bold, 14, "Hyperlink"], WordData[#, "Definitions"]] & /@ words, ", "]], SpanFromLeft},
+	        {Style["YOUR HINTS (HOVER FOR DEFINITIONS)", FontSize -> 12, Underlined], SpanFromLeft},
+	        {Dynamic[Row[Tooltip[Style[ToUpperCase[#], Black, Bold, 14, "Hyperlink"], WordData[#, "Definitions"]] & /@ hints, ", "]], SpanFromLeft},
 	        {
-	            Dynamic@visualizeWordVectors3D[words, exerciseWord, exerciseMode],
-	            SpanFromLeft
+		        Dynamic[Row[{
+	                InputField[Dynamic[wordInput], String, ContinuousAction -> True, FieldHint -> "Try to guess", Enabled -> exerciseMode == True],
+	                Dynamic[Button["GUESS", 
+	                    If[checkWord[wordInput],
+	                        AppendTo[words, wordInput];
+	                        checkGuess[targetWord, wordInput];
+	                    ]; 
+	                    wordInput = "",
+	                    Enabled -> exerciseMode == True
+	                ]]
+	            }]], SpanFromLeft
 	        },
-	        {Dynamic[Row[{Tooltip[Style[#, Bold, 12, "Hyperlink", Black], WordData[#, "Definitions"]] & /@ words}]], SpanFromLeft}
+	        {
+	            Grid[{
+	                {
+	                    Dynamic[Button["GENERATE EXERCISE", 
+	                        targetWord = generateExercise[words];
+	                        exerciseMode = True,
+	                        Enabled -> Length[words] > 0 && exerciseMode == False
+	                    ]],
+	                    Dynamic[Button["SHOW HINTS", 
+	                        hints = generateHints[targetWord, 2];
+	                        words = Join[words, hints],
+	                        Enabled -> exerciseMode == True
+	                    ]]
+	                },
+	                {
+	                    Button["SHOW SOLUTION", 
+	                        MessageDialog["SOLUTION WAS ", targetWord],
+	                        Enabled -> exerciseMode == True
+	                    ], 
+	                    Button["RESET",
+		                    words = {}; 
+		                    exerciseMode = False; 
+		                    hints = {}; 
+		                    targetWord,
+		                    BaseStyle -> {Background -> LightRed, FontSize -> 12}
+		                ]
+	                },
+	                {
+	                    Button["EXPORT PLOT", 
+	                        Export["embeddings.jpg", plotEmbeddings[words]],
+	                        Enabled -> Length[words] > 0], 
+	                    SpanFromLeft
+	                }
+	            }], SpanFromLeft
+	        }
         },
         ItemSize -> 30,
         Alignment -> Center,
         Spacings -> {Automatic, 2}
         ]
-        
-        (*Column[{
-            Row[{"Hello"}, Alignment -> Right]
-            Row[{Button["Info", infoAction, BaseStyle -> {FontSize -> 14}]}],
-            Spacer[20],
-            Row[{Style["Enter a word to view its representation: ", 14]}],
-            Row[{
-                InputField[Dynamic[wordInput], String, ContinuousAction -> True],
-                Spacer[{5, 5}],
-                Button["Add word", 
-                    If[checkWord[wordInput],
-                        AppendTo[words, wordInput];
-                    ]; 
-                    wordInput = ""]
-            }],
-            Spacer[10],
-            Row[{
-                Dynamic[Button["Hints", 
-                    hints = getTopNNearest[exerciseWord, 3];
-                    words = Join[words, hints],
-                    Enabled -> exerciseMode === True
-                 ]],
-                Dynamic[Button["Generate exercise", 
-                    exerciseWords = randomWordFromWords[words, 3];
-                    exerciseMode = True,
-                    Enabled -> Length[words] > 0 && exerciseMode === False
-                ]],
-                Dynamic[Button["Show solution", 
-                    MessageDialog[resolveExercise[exerciseWords[[1]], exerciseWords[[2]], exerciseWords[[3]]]],
-                    Enabled -> exerciseMode === True
-                ]],
-                Button["Reset", 
-                    words = {};
-                    exerciseWord = {};
-                    exerciseWords = {};
-                    hints = {};
-                    exerciseMode = False;
-                ]
-            }],
-            Spacer[10],
-            Row[{
-			  Style["Words: ", Bold, 12, Darker@Blue],
-			  Dynamic[
-			   Row[{
-			     Tooltip[
-			        Style[#, Bold, 12, "Hyperlink", Black],
-			        WordData[#, "Definitions"]
-			     ] & /@ words
-			   }]
-			  ]
-			}],
-            Spacer[10],
-            Row[{Style["Hints: ", Bold, 12, Darker@Green], 
-                Dynamic[Style[Row[hints, ", "], Bold, 12]]}],
-            Dynamic@visualizeWordVectors3D[words, exerciseWord, exerciseMode],
-            Dynamic@visualizeExercise[exerciseWords]
-		
-        }]*)
     ]
 ]
 
 
-visualizeWordVectors3D[words_, exerciseWord_, exerciseMode_: False] := Module[
-    {pca3D, colors, embeddings, graphics},
-	
-	Return[showStandardPlot[words]]
-	(*If[exerciseMode === False, 
-		,
-		Return[showExercisePlot[words, exerciseWord]]
-	];*)
-]
+drawPlot[words_, targetWord_, exerciseMode_: False] :=
+	If[exerciseMode === False, 
+		Return[plotEmbeddings[words]],
+		Return[plotExercise[words, targetWord]]
+	];
 
 
-showStandardPlot[words_] := Module[
+plotEmbeddings[words_] := Module[
     {pca3D, colors, embeddings, graphics},
     
     If[Length[words] == 0,
@@ -193,69 +172,21 @@ showStandardPlot[words_] := Module[
 ]
 
 
-showExercisePlot[words_, exerciseWord_] := Module[
-    {embeddings, exerciseEmbedding, wordLabels, exercisePoint, pca3D, index, 
-    pca3DWithoutExWord, wordLabelsWithoutExWord, graphics},
-    
-    (* Get the embeddings for all words *)
-    colors = ColorData[97] /@ Range[Length[words]];
-    embeddings = Map[$word2vec, words];
-    
-    (* Get the embedding for the exercise word *)
-    exerciseEmbedding = $word2vec[exerciseWord];
-    
-    (* Combine the embeddings with the exercise embedding *)
-    embeddings = Append[embeddings, exerciseEmbedding];
-    
-    (* Perform PCA for dimensionality reduction to 3D *)
-    pca3D = PrincipalComponents[embeddings][[All, 1 ;; 3]];
-    
-    (* Extract the word labels *)
-    wordLabels = Append[words, exerciseWord];
-    
-    (* Find the index of the exerciseWord in wordLabels *)
-    index = Position[wordLabels, exerciseWord][[1, 1]];
-    
-    (* Remove the corresponding element from pca3D *)
-    pca3DWithoutExWord = Delete[pca3D, index];
-    
-    (* Remove the exerciseWord from wordLabels *)
-    wordLabelsWithoutExWord = Delete[wordLabels, index];
-    
-    (* Plot the PCA-transformed embeddings and their corresponding words *)
-    graphics = Graphics3D[{
-        MapThread[{Thick, #1, Arrow[{{0, 0, 0}, #2}]} &, {colors, pca3DWithoutExWord}],
-        MapThread[Text[Style[#1, 18], #2 + 0.1 Normalize[#2]] &, {wordLabelsWithoutExWord, pca3DWithoutExWord}],
-        {Red, PointSize[Large], Point[pca3D[[index]]]}
-        }, 
-        Axes -> True, 
-        AxesLabel -> {"PC1", "PC2", "PC3"}, 
-        AxesStyle -> Directive[Black, Bold], 
-        ImageSize -> Large
-    ];
-    graphics
-]
+generateExercise[words_] := randomWordFromArray[words]
 
 
-visualizeExercise[words_] := Module[
-	{},
-	If[Length[words] != 3,
-        Return[Row[{}]]
-    ];
-    
-    Column[{
-        Row[{words[[1]], " is to ", words[[2]], " as ", words[[3]], " is to "}],
-        Row[{
-            InputField["text here"]
-        }]
-    }]
-]
+generateHints[targetWord_, n_] := getTopNNearest[targetWord, n]
 
 
-resolveExercise[word1_, word2_, word3_] := Module[
-	{},
-	Print[word1, word2, word3];
-	Nearest[$word2vec, $word2vec[word1] - $word2vec[word2] + $word2vec[word3], 5][[5]]
+checkGuess[targetWord_, wordIn_] := Module[
+	{targetLower, wordInLower, dst},
+	targetLower = ToLowerCase[targetWord];
+	wordInLower = ToLowerCase[wordIn];
+	
+	(*If[targetLower === wordInLower, MessageDialog["PERFECT!"]];*)
+	dst = EuclideanDistance[$word2vec[targetWord], $word2vec[wordIn]];
+	
+	Print[dst];
 ]
 
 
@@ -379,6 +310,51 @@ getTopNNearest[word_, n_] := Module[
         Return[nNearest],
         None
     ]
+]
+
+
+plotExercise[words_, exerciseWord_] := Module[
+	{embeddings, exerciseEmbedding, wordLabels, exercisePoint, pca3D, index, 
+    pca3DWithoutExWord, wordLabelsWithoutExWord, graphics, colors},
+  
+	  (* Get the embeddings for all words *)
+	  colors = ColorData[97] /@ Range[Length[words]];
+	  embeddings = Map[$word2vec, words];
+	  
+	  (* Get the embedding for the exercise word *)
+	  exerciseEmbedding = $word2vec[exerciseWord];
+	  
+	  (* Combine the embeddings with the exercise embedding *)
+	  embeddings = Append[embeddings, exerciseEmbedding];
+	  
+	  (* Perform PCA for dimensionality reduction *)
+	  pca3D = PrincipalComponents[embeddings][[All, 1 ;; 3]];
+	  
+	  (* Extract the word labels *)
+	  wordLabels = Append[words, exerciseWord];
+	  
+	  (* Find the index of the exerciseWord in wordLabels *)
+	  index = Position[wordLabels, exerciseWord][[1, 1]];
+	  
+	  (* Remove the corresponding element from pca3D *)
+	  pca3DWithoutExWord = Delete[pca3D, index];
+	  
+	  (* Remove the exerciseWord from wordLabels *)
+	  wordLabelsWithoutExWord = Delete[wordLabels, index];
+	  
+	  (* Plot the PCA-transformed embeddings and their corresponding words *)
+	  graphics = Graphics3D[{
+	      MapThread[{Thick, #1, Arrow[{{0, 0, 0}, #2}]} &, {colors, pca3DWithoutExWord}],
+	      MapThread[Text[Style[#1, 14], #2 + 0.1 Normalize[#2]] &, {wordLabelsWithoutExWord, pca3DWithoutExWord}],
+	      {Red, PointSize[0.025], Point[pca3D[[index]]]}
+	    }, 
+	    Axes -> True, 
+	    AxesLabel -> {"PC1", "PC2", "PC3"}, 
+	    BoxRatios -> {1, 1, 1}, 
+	    AxesStyle -> Directive[Black, Bold], 
+	    ImageSize -> Large
+	  ];
+	  graphics
 ]
 
 
