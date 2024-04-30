@@ -16,7 +16,7 @@
 BeginPackage["WordVec`"];
 
 
-Main::usage = "Main[] main routine of the WordVec package";
+Main::usage = "Main[seed] main routine of the WordVec package. Creates a demo interface based on the given seed";
 
 
 Begin["`Private`"];
@@ -29,17 +29,17 @@ $vecs = Normal@NetExtract[$net, "Weights"];
 $word2vec = AssociationThread[$words -> $vecs];
 
 
-Main[] := createDemo[]
+Main[seed_] := createDemo[seed]
 
 
-createDemo[] := DynamicModule[
+createDemo[seed_] := DynamicModule[
     {
-	    words = Table[generateRandomWord[seed], {seed, 42, 46}], 
+	    words = Table[generateRandomWord[s], {s, seed, seed + 4}], 
 	    wordInput,  
 	    exerciseMode = False,
 	    targetWord,
 	    hints = {},
-	    numberOfHints = {}
+	    numberOfHints
     },
 
 	infoAction := (
@@ -73,8 +73,6 @@ createDemo[] := DynamicModule[
 	        {Dynamic@drawPlot[words, targetWord, exerciseMode], SpanFromLeft},
 	        {Style["YOUR WORDS (HOVER FOR DEFINITIONS)", FontSize -> 12, Underlined], SpanFromLeft},
 	        {Dynamic[Row[Tooltip[Style[ToUpperCase[#], Black, Bold, 14, "Hyperlink"], WordData[#, "Definitions"]] & /@ words, ", "]], SpanFromLeft},
-	        {Style["YOUR HINTS (HOVER FOR DEFINITIONS)", FontSize -> 12, Underlined], SpanFromLeft},
-	        {Dynamic[Row[Tooltip[Style[ToUpperCase[#], Black, Bold, 14, "Hyperlink"], WordData[#, "Definitions"]] & /@ hints, ", "]], SpanFromLeft},
 	        {
 		        Dynamic[Row[{
 	                InputField[Dynamic[wordInput], String, ContinuousAction -> True, FieldHint -> "Try to guess", Enabled -> exerciseMode == True],
@@ -102,11 +100,13 @@ createDemo[] := DynamicModule[
 	                        Enabled -> exerciseMode == True
 	                    ]]
 	                },
+					{Style["YOUR HINTS (HOVER FOR DEFINITIONS)", FontSize -> 12, Underlined], SpanFromLeft},
+	                {Dynamic[Row[Tooltip[Style[ToUpperCase[#], Black, Bold, 14, "Hyperlink"], WordData[#, "Definitions"]] & /@ hints, ", "]], SpanFromLeft},						
 	                {
-	                    Button["SHOW SOLUTION", 
-	                        MessageDialog["SOLUTION WAS ", targetWord],
+	                    Dynamic[Button["SHOW SOLUTION", 
+	                        Print["SOLUTION WAS ", targetWord],
 	                        Enabled -> exerciseMode == True
-	                    ], 
+	                    ]], 
 	                    Button["RESET",
 		                    words = {}; 
 		                    exerciseMode = False; 
@@ -121,7 +121,9 @@ createDemo[] := DynamicModule[
 	                        Enabled -> Length[words] > 0], 
 	                    SpanFromLeft
 	                }
-	            }], SpanFromLeft
+	            },
+	            Spacings -> {Automatic, 2}
+	            ], SpanFromLeft
 	        }
         },
         ItemSize -> 30,
