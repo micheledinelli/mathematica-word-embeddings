@@ -160,20 +160,29 @@ createDemo[] := DynamicModule[
 ]
 
 
-(* Choose to draw standard plot or exercise plot depending on the flag exerciseMode *)
-(* IN: list of words to, targetWord, exerciseMode*)
+(* 
+   Chooses to draw either a standard plot of embeddings or an exercise plot,
+   depending on the value of the flag exerciseMode.
+*)
 drawPlot[words_, targetWord_, exerciseMode_: False] :=
-    If[exerciseMode === False, 
+    If[
+        exerciseMode === False, 
         (* If exercise mode is off, return a plot of embeddings *)
-        Return[plotEmbeddings[words]],
+        Return[plotEmbeddings[words]], (* Return the result of the plotEmbeddings function *)
+        
         (* If exercise mode is on, return a plot for exercise *)
-        Return[plotExercise[words, targetWord]]
+        Return[plotExercise[words, targetWord]] (* Return the result of the plotExercise function *)
     ];
 
 
+(*
+   Plots the embeddings of a list of words in a 3D space.
+   It uses PCA for dimensionality reduction to visualize the embeddings in 3D.
+*)
 plotEmbeddings[words_] := Module[
     {pca3D, colors, embeddings, graphics},
     
+    (* If there are no words, return an empty 3D graphics *)
     If[Length[words] == 0,
         Return[Graphics3D[{}, ImageSize -> Large]]
     ];
@@ -181,7 +190,7 @@ plotEmbeddings[words_] := Module[
     (* Define colors for each word *)
     colors = ColorData[97] /@ Range[Length[words]];
     
-    (* Get the embeddings *)
+    (* Get the embeddings for the words *)
     embeddings = $word2vec /@ words;
     
     (* Perform PCA for dimensionality reduction to 3D *)
@@ -190,18 +199,19 @@ plotEmbeddings[words_] := Module[
     (* Plot the vectors in a 3D space with arrows representing the embeddings *)
     graphics = Graphics3D[
         {
-            MapThread[{Thick, #1, Arrow[{{0, 0, 0}, #2}]} &, {colors, pca3D}],
-            MapThread[Text[Style[#1, 14], #2 + 0.1 Normalize[#2]] &, {words, pca3D}]
+            MapThread[{Thick, #1, Arrow[{{0, 0, 0}, #2}]} &, {colors, pca3D}], (* Plot arrows for each embedding *)
+            MapThread[Text[Style[#1, 14], #2 + 0.1 Normalize[#2]] &, {words, pca3D}] (* Label each embedding *)
         },
-        Axes -> True,
-        AxesLabel -> {"PC1", "PC2", "PC3"},
-        AxesStyle -> Directive[Black, Bold],
-        ImageSize -> Large
+        Axes -> True, (* Show axes *)
+        AxesLabel -> {"PC1", "PC2", "PC3"}, (* Label axes *)
+        AxesStyle -> Directive[Black, Bold], (* Style the axes *)
+        ImageSize -> Large (* Set image size *)
     ];
     
     (* Return the graphics *)
     Return[graphics]
 ]
+
 
 
 generateExercise[words_] := randomWordFromArray[words]
@@ -210,14 +220,25 @@ generateExercise[words_] := randomWordFromArray[words]
 generateHints[targetWord_, n_] := getTopNNearest[targetWord, n]
 
 
+(* 
+   Checks if a user guess is close enough to the target word 
+   and produces a message giving feedback on the attempt.
+*)
 checkGuess[targetWord_, wordIn_] := Module[
     {targetLower, wordInLower, dst, dstMessage},
+    
+    (* Convert both the target word and the user input to lowercase *)
     targetLower = ToLowerCase[targetWord];
     wordInLower = ToLowerCase[wordIn];
     
+    (* Calculate the Euclidean distance between the target word's vector 
+       and the user input word's vector *)
     dst = EuclideanDistance[$word2vec[targetWord], $word2vec[wordIn]];
+    
+    (* Create a message template to display the distance *)
     dstMessage = StringTemplate["`a` is `dst` far from the target using Euclidean Distance"][<|"a" -> wordIn, "dst" -> dst|>];
     
+    (* Based on the distance, show an appropriate feedback message *)
     Which[
         dst < 0.5, MessageDialog["Hurray! You WON!\n" <> dstMessage],
         0.5 <= dst <= 1, MessageDialog["You're close!\n" <> dstMessage],
@@ -228,8 +249,8 @@ checkGuess[targetWord_, wordIn_] := Module[
 ]
 
 
+
 (* Generates a random word that could be embedded, given a seed *)
-(* IN: seed *)
 generateRandomWord[seed_] := Module[
     {randomWord, randomList, n},
 
@@ -249,8 +270,7 @@ generateRandomWord[seed_] := Module[
 ]
 
 
-(* Get a random word starting from an array with n words *)
-(* IN: array *)
+(* Get a random word given an array *)
 randomWordFromArray[array_] := Module[
    {seed, myWord},
    
@@ -268,11 +288,7 @@ randomWordFromArray[array_] := Module[
 ]
 
 
-randomWordFromWords[words_, n_] := RandomSample[words, n]
-
-
 (* Get the embedding of the random word generated from the word array *)
-(* IN: array *)
 embeddedWordFromArray[array_] := Module[
 	{randomWordToEmbed},
 	
@@ -296,6 +312,10 @@ getEmbedding[word_] := Module[
 ]
 
 
+(* 
+	Checks if a given word is valid given the package business logic. 
+	Accepts verbose as an option to eventually produce messages 
+*)
 checkWord[word_, OptionsPattern[{Verbose -> True}]] := Module[
     {wordLower, embeddingExists, verbose},
 
@@ -337,6 +357,7 @@ checkWord[word_, OptionsPattern[{Verbose -> True}]] := Module[
 ]
 
 
+(* Return the n nearest words for a given word *)
 getTopNNearest[word_, n_] := Module[
     {wordLower, nNearest = {}},
     (* Converts a word to lower case *)
@@ -351,6 +372,7 @@ getTopNNearest[word_, n_] := Module[
 ]
 
 
+(* Plot word embedding and an exercise word represented as a anonymous point in the plot *)
 plotExercise[words_, exerciseWord_] := Module[
 	{embeddings, exerciseEmbedding, wordLabels, exercisePoint, pca3D, index, 
     pca3DWithoutExWord, wordLabelsWithoutExWord, graphics, colors, label},
@@ -380,6 +402,7 @@ plotExercise[words_, exerciseWord_] := Module[
 	  (* Remove the exerciseWord from wordLabels *)
 	  wordLabelsWithoutExWord = Delete[wordLabels, index];
 	  
+	  (* Generate a label for the exercise word keeping the last two chars and replacing the middle ones with dots *)
 	  label = StringTake[exerciseWord, {1, 1}] <> StringRepeat[".", Max[0, StringLength[exerciseWord] - 2]] <> StringTake[exerciseWord, {-1, -1}];
 	  
 	  (* Plot the PCA-transformed embeddings and their corresponding words *)
