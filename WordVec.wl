@@ -16,7 +16,7 @@
 BeginPackage["WordVec`"];
 
 
-Main::usage = "Main[seed] main routine of the WordVec package. Creates a demo interface based on the given seed";
+Main::usage = "Main[seed] main routine of the WordVec package.";
 
 
 Begin["`Private`"];
@@ -29,12 +29,12 @@ $vecs = Normal@NetExtract[$net, "Weights"];
 $word2vec = AssociationThread[$words -> $vecs];
 
 
-Main[seed_] := createDemo[seed]
+Main[] := createDemo[]
 
 
-createDemo[seed_] := DynamicModule[
+createDemo[] := DynamicModule[
     {
-	    words = Table[generateRandomWord[s], {s, seed, seed + 4}], 
+	    words = Table[generateRandomWord[seed], {seed, 42, 46}], 
 	    wordInput,  
 	    exerciseMode = False,
 	    targetWord,
@@ -44,12 +44,16 @@ createDemo[seed_] := DynamicModule[
 
 	infoAction := (
         MessageDialog[
-            "This is a demo interface for exploring word embeddings.\n\n" <>
-            "1. GENERATE EXERCISE \n\n" <>
-            "2. SHOW HINTS \n\n" <>
-            "3. SHOW SOLUTTION \n\n" <>
-            "4. RESET \n\n" <>
-            "5. Click 'Reset' to clear the word list and reset the interface."
+            "This is a demo interface for exploring word embeddings.\n" <>
+            "You'll see some words in the space, you can interact with the plot and see words are represented as vectors.\n" <>
+			"You can add new words to the plot. Choose carefully because only common English nouns are accepted.\n\n" <>
+            "- ADD A WORD TO PLOT: Type the word you would like to view in the first input field and then click ADD TO PLOT.\n\n" <>
+            "- VIEW WORD MEANINGS: Under the plot you can find a list of words, hover a given word to discover its meaning.\n\n" <>
+            "- GENERATE AN EXERCISE: When you are ready to test yourself click GENEREATE EXERCISE BUTTON.\n" <>
+            "A red dot will appear. Try to guess which word is close to that point!\n\n" <>
+            "- SHOW HINTS: You can view hints that will help you guessing the word.\n\n" <>
+            "- RESTART: Click the restart button to restart the interface from where you started.\n\n" <>
+            "- RESET: Clear all the words in the interface, this will end an ongoing exercise.\n"
         ]
     );
     
@@ -60,11 +64,14 @@ createDemo[seed_] := DynamicModule[
 	        {Row[{Button["READ A SMALL GUIDE", infoAction], ""}], SpanFromLeft},
 	        {
 		        Row[{
-	                InputField[Dynamic[wordInput], String, ContinuousAction -> True, FieldHint -> "type a word", Enabled -> exerciseMode == False],
+	                InputField[Dynamic[wordInput], String, ContinuousAction -> True, FieldHint -> "Type a word", Enabled -> exerciseMode == False],
 	                Dynamic[Button["ADD TO PLOT", 
 	                    If[checkWord[wordInput],
-	                        AppendTo[words, ToLowerCase[wordInput]];
-	                    ]; 
+						    If[!MemberQ[words, ToLowerCase[wordInput]],
+						        AppendTo[words, ToLowerCase[wordInput]],
+						        MessageDialog["The word is already in the list."]
+						    ]
+						];
 	                    wordInput = "",
 	                    Enabled -> exerciseMode == False
 	                ]]
@@ -78,9 +85,12 @@ createDemo[seed_] := DynamicModule[
 	                InputField[Dynamic[wordInput], String, ContinuousAction -> True, FieldHint -> "Try to guess", Enabled -> exerciseMode == True],
 	                Dynamic[Button["GUESS", 
 	                    If[checkWord[wordInput],
-	                        AppendTo[words, ToLowerCase[wordInput]];
-	                        checkGuess[targetWord, wordInput];
-	                    ]; 
+						    If[!MemberQ[words, ToLowerCase[wordInput]],
+						        AppendTo[words, ToLowerCase[wordInput]];
+						        checkGuess[targetWord, wordInput],
+						        MessageDialog["The word is already in the list."]
+						    ]
+						]; 
 	                    wordInput = "",
 	                    Enabled -> exerciseMode == True
 	                ]]
@@ -104,10 +114,20 @@ createDemo[seed_] := DynamicModule[
 	                {Dynamic[Row[Tooltip[Style[ToUpperCase[#], Black, Bold, 14, "Hyperlink"], WordData[#, "Definitions"]] & /@ hints, ", "]], SpanFromLeft},						
 	                {
 	                    Dynamic[Button["SHOW SOLUTION", 
-	                        Print["SOLUTION WAS ", targetWord],
+	                        MessageDialog["SOLUTION WAS ", targetWord];
+	                        AppendTo[words, targetWord],
 	                        Enabled -> exerciseMode == True
+	                    ]], SpanFromLeft
+	                },
+	                {
+	                    Dynamic[Button["RESTART", 
+	                        words = Table[generateRandomWord[seed], {seed, 42, 46}]; 
+		                    exerciseMode = False; 
+		                    hints = {}; 
+		                    targetWord,
+		                    BaseStyle -> {Background -> LightRed, FontSize -> 12}
 	                    ]], 
-	                    Button["RESET",
+	                    Button["CLEAR ALL",
 		                    words = {}; 
 		                    exerciseMode = False; 
 		                    hints = {}; 
@@ -181,14 +201,20 @@ generateHints[targetWord_, n_] := getTopNNearest[targetWord, n]
 
 
 checkGuess[targetWord_, wordIn_] := Module[
-	{targetLower, wordInLower, dst},
-	targetLower = ToLowerCase[targetWord];
-	wordInLower = ToLowerCase[wordIn];
-	
-	(*If[targetLower === wordInLower, MessageDialog["PERFECT!"]];*)
-	dst = EuclideanDistance[$word2vec[targetWord], $word2vec[wordIn]];
-	
-	Print[dst];
+    {targetLower, wordInLower, dst, dstMessage},
+    targetLower = ToLowerCase[targetWord];
+    wordInLower = ToLowerCase[wordIn];
+    
+    dst = EuclideanDistance[$word2vec[targetWord], $word2vec[wordIn]];
+    dstMessage = StringTemplate["`a` is `dst` far from the target using Euclidean Distance"][<|"a" -> wordIn, "dst" -> dst|>];
+    
+    Which[
+        dst < 0.5, MessageDialog["Hurray! You WON!\n" <> dstMessage],
+        0.5 <= dst <= 1, MessageDialog["You're close!\n" <> dstMessage],
+        1 <= dst <= 1.5, MessageDialog["You're getting there!\n" <> dstMessage],
+        dst > 2, MessageDialog["You can do better.\n" <> dstMessage],
+        True, MessageDialog["The distance is undefined."]
+    ]
 ]
 
 
