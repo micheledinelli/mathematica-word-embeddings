@@ -63,7 +63,7 @@ createDemo[] := DynamicModule[
 	                InputField[Dynamic[wordInput], String, ContinuousAction -> True, FieldHint -> "type a word", Enabled -> exerciseMode == False],
 	                Dynamic[Button["ADD TO PLOT", 
 	                    If[checkWord[wordInput],
-	                        AppendTo[words, wordInput];
+	                        AppendTo[words, ToLowerCase[wordInput]];
 	                    ]; 
 	                    wordInput = "",
 	                    Enabled -> exerciseMode == False
@@ -80,7 +80,7 @@ createDemo[] := DynamicModule[
 	                InputField[Dynamic[wordInput], String, ContinuousAction -> True, FieldHint -> "Try to guess", Enabled -> exerciseMode == True],
 	                Dynamic[Button["GUESS", 
 	                    If[checkWord[wordInput],
-	                        AppendTo[words, wordInput];
+	                        AppendTo[words, ToLowerCase[wordInput]];
 	                        checkGuess[targetWord, wordInput];
 	                    ]; 
 	                    wordInput = "",
