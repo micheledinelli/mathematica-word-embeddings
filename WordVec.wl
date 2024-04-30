@@ -34,7 +34,8 @@ Main[] := createDemo[]
 
 createDemo[] := DynamicModule[
     {
-	    words = Table[generateRandomWord[seed], {seed, 42, 46}], 
+        spawnSeed = 42,
+	    words = Table[generateRandomWord[seed], {seed, 42, 42 + 4}], 
 	    wordInput,  
 	    exerciseMode = False,
 	    targetWord,
@@ -60,8 +61,11 @@ createDemo[] := DynamicModule[
     (* User interface *)
     Panel[
         Grid[{
-	        {Style["WORD EMBEDDINGS", FontSize -> 18], SpanFromLeft},
-	        {Row[{Button["READ A SMALL GUIDE", infoAction], ""}], SpanFromLeft},
+	        {Style["WORD EMBEDDINGS", FontSize -> 18], SpanFromLeft},    
+	        {
+		        Row[{Button["READ A SMALL GUIDE", infoAction], "" }],
+	            SpanFromLeft
+	        },
 	        {
 		        Row[{
 	                InputField[Dynamic[wordInput], String, ContinuousAction -> True, FieldHint -> "Type a word", Enabled -> exerciseMode == False],
@@ -115,17 +119,19 @@ createDemo[] := DynamicModule[
 	                {
 	                    Dynamic[Button["SHOW SOLUTION", 
 	                        MessageDialog["SOLUTION WAS ", targetWord];
-	                        AppendTo[words, targetWord],
+	                        AppendTo[words, targetWord];
+	                        MessageDialog["Solution was " <> targetWord],
 	                        Enabled -> exerciseMode == True
 	                    ]], SpanFromLeft
 	                },
 	                {
 	                    Dynamic[Button["RESTART", 
-	                        words = Table[generateRandomWord[seed], {seed, 42, 46}]; 
+	                        spawnSeed = RandomInteger[100];
+	                        words = Table[generateRandomWord[seed], {seed, spawnSeed, spawnSeed + 4}]; 
 		                    exerciseMode = False; 
 		                    hints = {}; 
 		                    targetWord,
-		                    BaseStyle -> {Background -> LightRed, FontSize -> 12}
+		                    BaseStyle -> {Background -> LightGreen, FontSize -> 12}
 	                    ]], 
 	                    Button["CLEAR ALL",
 		                    words = {}; 
@@ -154,11 +160,15 @@ createDemo[] := DynamicModule[
 ]
 
 
+(* Choose to draw standard plot or exercise plot depending on the flag exerciseMode *)
+(* IN: list of words to, targetWord, exerciseMode*)
 drawPlot[words_, targetWord_, exerciseMode_: False] :=
-	If[exerciseMode === False, 
-		Return[plotEmbeddings[words]],
-		Return[plotExercise[words, targetWord]]
-	];
+    If[exerciseMode === False, 
+        (* If exercise mode is off, return a plot of embeddings *)
+        Return[plotEmbeddings[words]],
+        (* If exercise mode is on, return a plot for exercise *)
+        Return[plotExercise[words, targetWord]]
+    ];
 
 
 plotEmbeddings[words_] := Module[
@@ -343,7 +353,7 @@ getTopNNearest[word_, n_] := Module[
 
 plotExercise[words_, exerciseWord_] := Module[
 	{embeddings, exerciseEmbedding, wordLabels, exercisePoint, pca3D, index, 
-    pca3DWithoutExWord, wordLabelsWithoutExWord, graphics, colors},
+    pca3DWithoutExWord, wordLabelsWithoutExWord, graphics, colors, label},
   
 	  (* Get the embeddings for all words *)
 	  colors = ColorData[97] /@ Range[Length[words]];
@@ -370,11 +380,13 @@ plotExercise[words_, exerciseWord_] := Module[
 	  (* Remove the exerciseWord from wordLabels *)
 	  wordLabelsWithoutExWord = Delete[wordLabels, index];
 	  
+	  label = StringTake[exerciseWord, {1, 1}] <> StringRepeat[".", Max[0, StringLength[exerciseWord] - 2]] <> StringTake[exerciseWord, {-1, -1}];
+	  
 	  (* Plot the PCA-transformed embeddings and their corresponding words *)
 	  graphics = Graphics3D[{
 	      MapThread[{Thick, #1, Arrow[{{0, 0, 0}, #2}]} &, {colors, pca3DWithoutExWord}],
 	      MapThread[Text[Style[#1, 14], #2 + 0.1 Normalize[#2]] &, {wordLabelsWithoutExWord, pca3DWithoutExWord}],
-	      {Red, PointSize[0.025], Point[pca3D[[index]]]}
+	      {Red, PointSize[0.025], Point[pca3D[[index]]], Text[Style[label, 22, Bold], pca3D[[index]] + {0, 0, 0.1}, {0, -1}]}
 	    }, 
 	    Axes -> True, 
 	    AxesLabel -> {"PC1", "PC2", "PC3"}, 
