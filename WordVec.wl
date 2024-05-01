@@ -7,7 +7,7 @@
 (* :Copyright: BF DM HY RM 2024 *)
 (* :Package Version: 1 *)
 (* :Mathematica Version: 13 *)
-(* :History: last modified 27/3/2023 *)
+(* :History: last modified 1/05/2024 *)
 (* :Keywords: embeddings, vectors, word2vec *)
 (* :Limitations: this is for educational purposes only *)
 (* :Requirements: *)
@@ -40,7 +40,7 @@ createDemo[] := DynamicModule[
 	    exerciseMode = False,
 	    targetWord,
 	    hints = {},
-	    numberOfHints
+	    numHints = 0
     },
 
 	infoAction := (
@@ -107,15 +107,27 @@ createDemo[] := DynamicModule[
 	                        targetWord = generateExercise[words];
 	                        exerciseMode = True,
 	                        Enabled -> Length[words] > 0 && exerciseMode == False
-	                    ]],
-	                    Dynamic[Button["SHOW HINTS", 
-	                        hints = generateHints[targetWord, 2];
-	                        words = Join[words, hints],
-	                        Enabled -> exerciseMode == True
-	                    ]]
-	                },
-					{Style["YOUR HINTS (HOVER FOR DEFINITIONS)", FontSize -> 12, Underlined], SpanFromLeft},
-	                {Dynamic[Row[Tooltip[Style[ToUpperCase[#], Black, Bold, 14, "Hyperlink"], WordData[#, "Definitions"]] & /@ hints, ", "]], SpanFromLeft},						
+	                    ]], SpanFromLeft
+	                },					
+					{
+						Style["NUMBER OF HINTS: ", FontSize -> 12], SpanFromLeft
+					},
+					{
+						Column[{
+							Dynamic[SetterBar[Dynamic[numHints, (numHints = #;
+							        hints = generateHints[targetWord, numHints];
+							        words = Complement[words, hints];
+							        words = Join[words, hints]) &],
+							        {0, 1, 2, 3}, 
+							        Enabled -> exerciseMode == True]]
+						}], SpanFromLeft
+					},
+					{
+						Style["YOUR HINTS (HOVER FOR DEFINITIONS)", FontSize -> 12, Underlined], SpanFromLeft
+					},
+					{
+						Dynamic[Row[Tooltip[Style[ToUpperCase[#], Black, Bold, 14, "Hyperlink"], WordData[#, "Definitions"]] & /@ hints, ", "]], SpanFromLeft
+					},
 	                {
 	                    Dynamic[Button["SHOW SOLUTION", 
 	                        MessageDialog["SOLUTION WAS ", targetWord];
