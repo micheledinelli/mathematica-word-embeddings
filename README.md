@@ -1,7 +1,7 @@
 # Computational Math project - Word Embeddings
 
  ![alt text](https://github.com/micheledinelli/word-embeddings/blob/main/images/screenshots/screenshot-1.png)
- ![alt text](https://github.com/micheledinelli/word-embeddings/blob/main/images/screenshots/screenshot-1.png)
+ ![alt text](https://github.com/micheledinelli/word-embeddings/blob/main/images/screenshots/screenshot-2.png)
 
 ## Authors
 massimo.rondelli@studio.unibo.it
