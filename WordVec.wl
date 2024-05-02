@@ -40,7 +40,8 @@ createDemo[] := DynamicModule[
 	    exerciseMode = False,
 	    targetWord,
 	    hints = {},
-	    numHints = 0
+	    numHints = 0,
+	    exerciseFinished = False
     },
 
 	infoAction := (
@@ -81,7 +82,7 @@ createDemo[] := DynamicModule[
 	                ]]
 	            }], SpanFromLeft
 	        },
-	        {Dynamic@drawPlot[words, targetWord, exerciseMode], SpanFromLeft},
+	        {Dynamic@drawPlot[words, targetWord, exerciseMode, exerciseFinished], SpanFromLeft},
 	        {Style["YOUR WORDS (HOVER FOR DEFINITIONS)", FontSize -> 12, Underlined], SpanFromLeft},
 	        {Dynamic[Row[Tooltip[Style[ToUpperCase[#], Black, Bold, 14, "Hyperlink"], WordData[#, "Definitions"]] & /@ words, ", "]], SpanFromLeft},
 	        {
@@ -91,12 +92,13 @@ createDemo[] := DynamicModule[
 	                    If[checkWord[wordInput],
 						    If[!MemberQ[words, ToLowerCase[wordInput]],
 						        AppendTo[words, ToLowerCase[wordInput]];
-						        checkGuess[targetWord, wordInput],
+						        (* Updating game state *)
+						        exerciseFinished = checkGuess[targetWord, wordInput],
 						        MessageDialog["The word is already in the list."]
 						    ]
 						]; 
 	                    wordInput = "",
-	                    Enabled -> exerciseMode == True
+	                    Enabled -> exerciseMode == True && !exerciseFinished
 	                ]]
 	            }]], SpanFromLeft
 	        },
@@ -116,10 +118,11 @@ createDemo[] := DynamicModule[
 						Column[{
 							Dynamic[SetterBar[Dynamic[numHints, (numHints = #;
 							        hints = generateHints[targetWord, numHints];
+							        (* Joining words and hints toghether in two steps*)
 							        words = Complement[words, hints];
 							        words = Join[words, hints]) &],
 							        {0, 1, 2, 3}, 
-							        Enabled -> exerciseMode == True]]
+							        Enabled -> exerciseMode == True && !exerciseFinished]]
 						}], SpanFromLeft
 					},
 					{
@@ -132,8 +135,9 @@ createDemo[] := DynamicModule[
 	                    Dynamic[Button["SHOW SOLUTION", 
 	                        MessageDialog["SOLUTION WAS ", targetWord];
 	                        AppendTo[words, targetWord];
+	                        exerciseFinished = True;
 	                        MessageDialog["Solution was " <> targetWord],
-	                        Enabled -> exerciseMode == True
+	                        Enabled -> exerciseMode == True && !exerciseFinished
 	                    ]], SpanFromLeft
 	                },
 	                {
@@ -141,6 +145,7 @@ createDemo[] := DynamicModule[
 	                        spawnSeed = RandomInteger[100];
 	                        words = Table[generateRandomWord[seed], {seed, spawnSeed, spawnSeed + 4}]; 
 		                    exerciseMode = False; 
+		                    exerciseFinished = False;
 		                    hints = {}; 
 		                    targetWord,
 		                    BaseStyle -> {Background -> LightGreen, FontSize -> 12}
@@ -149,6 +154,7 @@ createDemo[] := DynamicModule[
 		                    words = {}; 
 		                    exerciseMode = False; 
 		                    hints = {}; 
+		                    exerciseFinished = False;
 		                    targetWord,
 		                    BaseStyle -> {Background -> LightRed, FontSize -> 12}
 		                ]
@@ -174,22 +180,36 @@ createDemo[] := DynamicModule[
 
 (* 
    Chooses to draw either a standard plot of embeddings or an exercise plot,
-   depending on the value of the flag exerciseMode.
+   depending on the value of the flag exerciseMode. 
+   IN:
+	   - words: a list of words
+	   - targetWord: a word to guess
+	   - exerciseMode: a flag stating if the current mode is exercise or standard mode
+   OUT:
+       - a graphic representing word embeddings
 *)
-drawPlot[words_, targetWord_, exerciseMode_: False] :=
-    If[
-        exerciseMode === False, 
-        (* If exercise mode is off, return a plot of embeddings *)
-        Return[plotEmbeddings[words]], (* Return the result of the plotEmbeddings function *)
-        
-        (* If exercise mode is on, return a plot for exercise *)
-        Return[plotExercise[words, targetWord]] (* Return the result of the plotExercise function *)
-    ];
+drawPlot[words_, targetWord_, exerciseMode_: False, exerciseFinished_: False] := Module[
+    (* Define local variable to determine which plot to draw *)
+    {plotFlag},
+    
+    (* Calculate the plotFlag based on exerciseMode and exerciseFinished *)
+    plotFlag = (!exerciseMode && !exerciseFinished) || (exerciseMode && exerciseFinished);
+    
+    (* Check the value of plotFlag to determine which plot to draw *)
+    If[plotFlag, 
+        (* If plotFlag is True, draw standard embeddings plot *)
+        plotEmbeddings[words],
+        (* If plotFlag is False, draw exercise plot *)
+        plotExercise[words, targetWord]
+    ]
+]
 
 
 (*
    Plots the embeddings of a list of words in a 3D space.
    It uses PCA for dimensionality reduction to visualize the embeddings in 3D.
+   IN:
+	   - words: a list of words
 *)
 plotEmbeddings[words_] := Module[
     {pca3D, colors, embeddings, graphics},
@@ -235,6 +255,11 @@ generateHints[targetWord_, n_] := getTopNNearest[targetWord, n]
 (* 
    Checks if a user guess is close enough to the target word 
    and produces a message giving feedback on the attempt.
+   Returns if the user won checking if the distance is less than a fixed amount (0.5).
+   
+   IN:
+	   - targetWord: the target word
+	   - wordIn: user's word guess
 *)
 checkGuess[targetWord_, wordIn_] := Module[
     {targetLower, wordInLower, dst, dstMessage},
@@ -257,12 +282,18 @@ checkGuess[targetWord_, wordIn_] := Module[
         1 <= dst <= 1.5, MessageDialog["You're getting there!\n" <> dstMessage],
         dst > 2, MessageDialog["You can do better.\n" <> dstMessage],
         True, MessageDialog["The distance is undefined."]
-    ]
+    ];
+    
+    Return[dst < 0.5];
 ]
 
 
 
-(* Generates a random word that could be embedded, given a seed *)
+(* 
+	Generates a random word that could be embedded, given a seed 
+	IN:
+	    - seed: a number to start a pseudorandomic state
+*)
 generateRandomWord[seed_] := Module[
     {randomWord, randomList, n},
 
@@ -282,7 +313,11 @@ generateRandomWord[seed_] := Module[
 ]
 
 
-(* Get a random word given an array *)
+(* 
+	Get a random word given an array 
+	IN:
+	    - array: a list of words
+*)
 randomWordFromArray[array_] := Module[
    {seed, myWord},
    
@@ -300,7 +335,11 @@ randomWordFromArray[array_] := Module[
 ]
 
 
-(* Get the embedding of the random word generated from the word array *)
+(* 
+	Get the embedding of the random word generated from the word array 
+	IN:
+		- array: a list of words
+*)
 embeddedWordFromArray[array_] := Module[
 	{randomWordToEmbed},
 	
@@ -312,7 +351,11 @@ embeddedWordFromArray[array_] := Module[
 ]
 
 
-(* Get the vector representation or embedding for a given word *)
+(* 
+	Get the vector representation or embedding for a given word 
+	IN:
+		- word: a word
+*)
 getEmbedding[word_] := Module[
     {wordLower, vector},
 
@@ -326,7 +369,10 @@ getEmbedding[word_] := Module[
 
 (* 
 	Checks if a given word is valid given the package business logic. 
-	Accepts verbose as an option to eventually produce messages 
+	Accepts verbose as an option to eventually produce messages
+	IN:
+		- word: a word
+		- options: {Verbose: Boolean}
 *)
 checkWord[word_, OptionsPattern[{Verbose -> True}]] := Module[
     {wordLower, embeddingExists, verbose},
@@ -369,7 +415,12 @@ checkWord[word_, OptionsPattern[{Verbose -> True}]] := Module[
 ]
 
 
-(* Return the n nearest words for a given word *)
+(* 
+	Return the n nearest words for a given word 
+	IN:
+	    - word: a word
+	    - n: number of neighbours to produce
+*)
 getTopNNearest[word_, n_] := Module[
     {wordLower, nNearest = {}},
     (* Converts a word to lower case *)
@@ -384,7 +435,13 @@ getTopNNearest[word_, n_] := Module[
 ]
 
 
-(* Plot word embedding and an exercise word represented as a anonymous point in the plot *)
+(* 
+	Plot word embedding and an exercise word represented as a anonymous point in the plot 
+	IN:
+		- pca3D: matrix representing a dimensionality reduction
+		- labels: list of words representing labels for points
+		- minDistance: a minimum distance to keep labels away from each others
+*)
 adjustLabelPositions[pca3D_, labels_, minDistance_] := Module[{labelOffsets},
     labelOffsets = ConstantArray[{0, 0, 0}, Length[pca3D]];
     Do[
@@ -397,6 +454,13 @@ adjustLabelPositions[pca3D_, labels_, minDistance_] := Module[{labelOffsets},
     Transpose[{labels, pca3D + labelOffsets}]
 ]
 
+(* 
+	Plots the words in input using their embeddings, and plots the exerciseWord 
+	as a red dot labelling it with the first and last word of the word it represents. 
+	IN:
+		- words: a list of words
+		- exerciseWord: a word to be represented as a red dot (to be guessed by the user)
+*)
 plotExercise[words_, exerciseWord_] := Module[
     {embeddings, exerciseEmbedding, wordLabels, exercisePoint, pca3D, index, 
     pca3DWithoutExWord, wordLabelsWithoutExWord, graphics, colors, label, adjustedLabels},
