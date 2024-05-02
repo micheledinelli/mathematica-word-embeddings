@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 1.1.1
+
+* Some minor changes in Tutorial.nb file
+  ([#67e6adb](https://github.com/micheledinelli/mathematica-word-embeddings/commit/67e6adb961380c86fb7a6b49b67014798dd10cc1), @micheledinelli)
+* Some minor changes in README.md file
+  ([#28ec971](https://github.com/micheledinelli/mathematica-word-embeddings/commit/28ec97181adb0f912a314af1b36856da68a2584d), @micheledinelli)
+
 ## 1.1.0
 
 * Added support for end game mode
