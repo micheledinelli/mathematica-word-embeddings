@@ -212,7 +212,7 @@ plotEmbeddings[words_] := Module[
     graphics = Graphics3D[
         {
             MapThread[{Thick, #1, Arrow[{{0, 0, 0}, #2}]} &, {colors, pca3D}], (* Plot arrows for each embedding *)
-            MapThread[Text[Style[#1, 14], #2 + 0.1 Normalize[#2]] &, {words, pca3D}] (* Label each embedding *)
+            MapThread[Text[Style[#1, 14], #2 + 0.5 Normalize[#2]] &, {words, pca3D}] (* Label each embedding *)
         },
         Axes -> True, (* Show axes *)
         AxesLabel -> {"PC1", "PC2", "PC3"}, (* Label axes *)
@@ -385,51 +385,67 @@ getTopNNearest[word_, n_] := Module[
 
 
 (* Plot word embedding and an exercise word represented as a anonymous point in the plot *)
+adjustLabelPositions[pca3D_, labels_, minDistance_] := Module[{labelOffsets},
+    labelOffsets = ConstantArray[{0, 0, 0}, Length[pca3D]];
+    Do[
+        If[Norm[pca3D[[i]] - pca3D[[j]]] < minDistance,
+            labelOffsets[[i]] += Normalize[pca3D[[i]] - pca3D[[j]]] * minDistance;
+        ],
+        {i, Length[pca3D]},
+        {j, i + 1, Length[pca3D]}
+    ];
+    Transpose[{labels, pca3D + labelOffsets}]
+]
+
 plotExercise[words_, exerciseWord_] := Module[
-	{embeddings, exerciseEmbedding, wordLabels, exercisePoint, pca3D, index, 
-    pca3DWithoutExWord, wordLabelsWithoutExWord, graphics, colors, label},
+    {embeddings, exerciseEmbedding, wordLabels, exercisePoint, pca3D, index, 
+    pca3DWithoutExWord, wordLabelsWithoutExWord, graphics, colors, label, adjustedLabels},
   
-	  (* Get the embeddings for all words *)
-	  colors = ColorData[97] /@ Range[Length[words]];
-	  embeddings = Map[$word2vec, words];
-	  
-	  (* Get the embedding for the exercise word *)
-	  exerciseEmbedding = $word2vec[exerciseWord];
-	  
-	  (* Combine the embeddings with the exercise embedding *)
-	  embeddings = Append[embeddings, exerciseEmbedding];
-	  
-	  (* Perform PCA for dimensionality reduction *)
-	  pca3D = PrincipalComponents[embeddings][[All, 1 ;; 3]];
-	  
-	  (* Extract the word labels *)
-	  wordLabels = Append[words, exerciseWord];
-	  
-	  (* Find the index of the exerciseWord in wordLabels *)
-	  index = Position[wordLabels, exerciseWord][[1, 1]];
-	  
-	  (* Remove the corresponding element from pca3D *)
-	  pca3DWithoutExWord = Delete[pca3D, index];
-	  
-	  (* Remove the exerciseWord from wordLabels *)
-	  wordLabelsWithoutExWord = Delete[wordLabels, index];
-	  
-	  (* Generate a label for the exercise word keeping the last two chars and replacing the middle ones with dots *)
-	  label = StringTake[exerciseWord, {1, 1}] <> StringRepeat[".", Max[0, StringLength[exerciseWord] - 2]] <> StringTake[exerciseWord, {-1, -1}];
-	  
-	  (* Plot the PCA-transformed embeddings and their corresponding words *)
-	  graphics = Graphics3D[{
-	      MapThread[{Thick, #1, Arrow[{{0, 0, 0}, #2}]} &, {colors, pca3DWithoutExWord}],
-	      MapThread[Text[Style[#1, 14], #2 + 0.1 Normalize[#2]] &, {wordLabelsWithoutExWord, pca3DWithoutExWord}],
-	      {Red, PointSize[0.025], Point[pca3D[[index]]], Text[Style[label, 22, Bold], pca3D[[index]] + {0, 0, 0.1}, {0, -1}]}
-	    }, 
-	    Axes -> True, 
-	    AxesLabel -> {"PC1", "PC2", "PC3"}, 
-	    BoxRatios -> {1, 1, 1}, 
-	    AxesStyle -> Directive[Black, Bold], 
-	    ImageSize -> Large
-	  ];
-	  graphics
+    (* Get the embeddings for all words *)
+    colors = ColorData[97] /@ Range[Length[words]];
+    embeddings = Map[$word2vec, words];
+    
+    (* Get the embedding for the exercise word *)
+    exerciseEmbedding = $word2vec[exerciseWord];
+    
+    (* Combine the embeddings with the exercise embedding *)
+    embeddings = Append[embeddings, exerciseEmbedding];
+    
+    (* Perform PCA for dimensionality reduction *)
+    pca3D = PrincipalComponents[embeddings][[All, 1 ;; 3]];
+    
+    (* Extract the word labels *)
+    wordLabels = Append[words, exerciseWord];
+    
+    (* Find the index of the exerciseWord in wordLabels *)
+    index = Position[wordLabels, exerciseWord][[1, 1]];
+    
+    (* Remove the corresponding element from pca3D *)
+    pca3DWithoutExWord = Delete[pca3D, index];
+    
+    (* Remove the exerciseWord from wordLabels *)
+    wordLabelsWithoutExWord = Delete[wordLabels, index];
+    
+    (* Generate a label for the exercise word keeping the last two chars and replacing the middle ones with dots *)
+    label = StringTake[exerciseWord, {1, 1}] <> StringRepeat[".", Max[0, StringLength[exerciseWord] - 2]] <> StringTake[exerciseWord, {-1, -1}];
+    
+    (* Adjust label positions to prevent overlap *)
+    adjustedLabels = adjustLabelPositions[pca3DWithoutExWord, wordLabelsWithoutExWord, 0.1];
+    
+    (* Plot the PCA-transformed embeddings and their corresponding words *)
+    graphics = Graphics3D[{
+        MapThread[{Thick, #1, Arrow[{{0, 0, 0}, #2}]} &, {colors, pca3DWithoutExWord}],
+        MapThread[Text[Style[#1, 14], #2] &, {adjustedLabels[[All, 1]], adjustedLabels[[All, 2]]}],
+        {Red, PointSize[0.025], Point[pca3D[[index]]], Text[Style[label, 22, Bold], pca3D[[index]] + {0, 0, 0.2}, {0, -1}]}
+    }, 
+    Axes -> True, 
+    AxesLabel -> {"PC1", "PC2", "PC3"}, 
+    BoxRatios -> {1, 1, 1}, 
+    AxesStyle -> Directive[Black, Bold], 
+    ImageSize -> Large
+    ];
+    
+    graphics
 ]
 
 
