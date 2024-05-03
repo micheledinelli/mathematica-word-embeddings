@@ -6,7 +6,7 @@
 (* :Summary: An interactive visualizer of word embeddings *)
 (* :Copyright: BF DM HY RM 2024 *)
 (* :Package Version: 1 *)
-(* :Mathematica Version: 13 *)
+(* :Mathematica Version: 14.0.0.0 *)
 (* :History: last modified 1/05/2024 *)
 (* :Keywords: embeddings, vectors, word2vec *)
 (* :Limitations: this is for educational purposes only *)
@@ -62,15 +62,21 @@ createDemo[] := DynamicModule[
     
     (* Buttons and user actions are disabled until they can be actually triggered, following the business logic of the game *)
     Panel[
+        (* The graphic elements are placed on a Grid *)
         Grid[{
+            (* Title *)
 	        {Style["WORD EMBEDDINGS", FontSize -> fontSize + 6], SpanFromLeft}, 
+	        (* Tutorial button *)
 	        {
 		        Row[{Button["READ A SMALL GUIDE", infoAction], "" }],
 	            SpanFromLeft
 	        },
+	        (* Input word row *)
 	        {
 		        Row[{
+		            (* The user can use this InputField to insert a new word that have to be a WordList["Noun"] *)
 	                InputField[Dynamic[wordInput], String, ContinuousAction -> True, FieldHint -> "Type a word", Enabled -> exerciseMode == False],
+	                (* Button that allows to add the embedded word to the plot *)
 	                Dynamic[Button["ADD TO PLOT", 
 	                    (* If user's input word is valid and is not already in the list of words it's added to it *)
 	                    (* Otherwise a message is produced *)
@@ -92,12 +98,13 @@ createDemo[] := DynamicModule[
 	        {Dynamic[Row[Tooltip[Style[ToUpperCase[#], Black, Bold, 14, "Hyperlink"], WordData[#, "Definitions"]] & /@ words, ", "]], SpanFromLeft},
 	        {
 		        Dynamic[Row[{
+	                (* The user can use this InputField to try to guess the targetWord *)
 	                InputField[Dynamic[wordInput], String, ContinuousAction -> True, FieldHint -> "Try to guess", Enabled -> exerciseMode == True],
 	                Dynamic[Button["GUESS", 
 	                    If[checkWord[wordInput],
 						    If[!MemberQ[words, ToLowerCase[wordInput]],
 						        AppendTo[words, ToLowerCase[wordInput]];
-						        (* Updating game state *)
+						        (* Updating game state, checkGuess returns wether user won or not*)
 						        exerciseFinished = checkGuess[targetWord, wordInput],
 						        MessageDialog["The word is already in the list."]
 						    ]
@@ -108,9 +115,12 @@ createDemo[] := DynamicModule[
 	            }]], SpanFromLeft
 	        },
 	        {
+	            (* The graphic elements are placed on a Grid *)
 	            Grid[{
 	                {
+	                    (* Button that allows to create an excercise starting from the input words *)
 	                    Dynamic[Button["GENERATE EXERCISE", 
+	                        (* Input words are binded to a word to guess *)
 	                        targetWord = generateExercise[words];
 	                        exerciseMode = True,
 	                        Enabled -> Length[words] > 0 && exerciseMode == False
@@ -120,6 +130,8 @@ createDemo[] := DynamicModule[
 						Style["NUMBER OF HINTS: ", FontSize -> fontSize], SpanFromLeft
 					},
 					{
+					    (* Hint generated starting from the targetWord *)
+					    (* Number of hints are showed dynamically following which button the user clicks (1, 2, 3) *)
 						Column[{
 							Dynamic[SetterBar[Dynamic[numHints, (numHints = #;
 							        hints = generateHints[targetWord, numHints];
@@ -134,9 +146,11 @@ createDemo[] := DynamicModule[
 						Style["YOUR HINTS (HOVER FOR DEFINITIONS)", FontSize -> fontSize, Underlined], SpanFromLeft
 					},
 					{
+					    (* Tooltip that shows the hints generated *)
 						Dynamic[Row[Tooltip[Style[ToUpperCase[#], Black, Bold, 14, "Hyperlink"], WordData[#, "Definitions"]] & /@ hints, ", "]], SpanFromLeft
 					},
 	                {
+	                    (* Button that shows a message dialog with the solution (the word to guess) *)
 	                    Dynamic[Button["SHOW SOLUTION", 
 	                        MessageDialog["SOLUTION WAS ", targetWord];
 	                        AppendTo[words, targetWord];
@@ -146,6 +160,7 @@ createDemo[] := DynamicModule[
 	                    ]], SpanFromLeft
 	                },
 	                {
+	                    (* Restart the excercise *)
 	                    Dynamic[Button["RESTART", 
 	                        spawnSeed = RandomInteger[100]; (* this variable cannot be global and parameterized otherwise the restart generation won't be work. Always the same words would be generated.*)
 	                        words = Table[generateRandomWord[seed], {seed, spawnSeed, spawnSeed + 4}]; 
@@ -156,6 +171,7 @@ createDemo[] := DynamicModule[
 		                    targetWord,
 		                    BaseStyle -> {Background -> LightGreen, FontSize -> fontSize}
 	                    ]], 
+	                    (* Clear all the interface and the plot *)
 	                    Button["CLEAR ALL",
 		                    words = {}; 
 		                    exerciseMode = False; 
@@ -167,6 +183,7 @@ createDemo[] := DynamicModule[
 		                ]
 	                },
 	                {
+	                    (* This button exports the plot image and the ordered list of the words inserted *)
 	                    Button["EXPORT PLOT", 
 	                        Export["embeddings.jpg", plotEmbeddings[words, ExportMode -> True]],
 	                        Enabled -> Length[words] > 0], 
