@@ -168,7 +168,7 @@ createDemo[] := DynamicModule[
 	                },
 	                {
 	                    Button["EXPORT PLOT", 
-	                        Export["embeddings.jpg", plotEmbeddings[words]],
+	                        Export["embeddings.jpg", plotEmbeddings[words, ExportMode -> True]],
 	                        Enabled -> Length[words] > 0], 
 	                    SpanFromLeft
 	                }
@@ -218,8 +218,10 @@ drawPlot[words_, targetWord_, exerciseMode_: False, exerciseFinished_: False] :=
    IN:
 	   - words: a list of words
 *)
-plotEmbeddings[words_] := Module[
-    {pca3D, colors, embeddings, graphics},
+plotEmbeddings[words_, OptionsPattern[{ExportMode -> False}]] := Module[
+    {pca3D, colors, embeddings, graphics, exportMode, wordRows, textRows, graphicsWithText},
+    
+    exportMode = OptionValue[ExportMode];
     
     (* If there are no words, return an empty 3D graphics *)
     If[Length[words] == 0,
@@ -247,10 +249,21 @@ plotEmbeddings[words_] := Module[
         ImageSize -> Large (* Set image size *)
     ];
     
+	If[exportMode,
+	    (* Split the list of words into rows of length 5 *)
+	    wordRows = Partition[words, 5];
+	
+	    (* Create rows to put thems below the 3D plot *)
+	    textRows = Map[GraphicsRow[Text[Style[#, 8]] & /@ #] &, wordRows];
+	
+	    (* Combine the 3D plot and the text rows *)
+	    graphicsWithText = GraphicsColumn[{graphics, Sequence @@ textRows}];
+	    Return[graphicsWithText]
+	];
+
     (* Return the graphics *)
     Return[graphics]
 ]
-
 
 
 generateExercise[words_] := randomWordFromArray[words]
