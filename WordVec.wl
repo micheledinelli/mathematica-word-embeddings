@@ -461,6 +461,9 @@ adjustLabelPositions[pca3D_, labels_, minDistance_] := Module[{labelOffsets},
         {i, Length[pca3D]},
         {j, i + 1, Length[pca3D]}
     ];
+    
+    (* transpose the list of labels and the list of corresponding PCA-transformed embeddings. *)
+    (* This operation is performed to create a list where each element consists of a label paired with its corresponding adjusted position in the 3D space.*)
     Transpose[{labels, pca3D + labelOffsets}]
 ]
 
