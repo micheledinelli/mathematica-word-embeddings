@@ -435,12 +435,8 @@ getTopNNearest[word_, n_] := Module[
     wordLower = ToLowerCase[word];
     (* Check if the provided word is valid then return the n nearest words *)
     If[checkWord[word],
-<<<<<<< Updated upstream
-=======
+		(* Remove the input word if it's included *)
         nNearest = DeleteCases[Nearest[word2vec, word2vec[wordLower], n + 1], wordLower]; 
->>>>>>> Stashed changes
-        (* Remove the input word if it's included *)
-        nNearest = DeleteCases[Nearest[$word2vec, $word2vec[wordLower], n + 1], wordLower];
         Return[nNearest],
         None
     ]
