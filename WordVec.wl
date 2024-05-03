@@ -34,7 +34,6 @@ Main[] := createDemo[]
 
 createDemo[] := DynamicModule[
     {
-        spawnSeed = 42,
 	    words = Table[generateRandomWord[seed], {seed, 42, 42 + 4}], 
 	    wordInput,  
 	    exerciseMode = False,
@@ -44,8 +43,7 @@ createDemo[] := DynamicModule[
 	    exerciseFinished = False
     },
 
-	infoAction := (
-        MessageDialog[
+	infoAction := MessageDialog[
             "This is a demo interface for exploring word embeddings.\n" <>
             "You'll see some words in the space, you can interact with the plot and see words are represented as vectors.\n" <>
 			"You can add new words to the plot. Choose carefully because only common English nouns are accepted.\n\n" <>
@@ -56,10 +54,11 @@ createDemo[] := DynamicModule[
             "- SHOW HINTS: You can view hints that will help you guessing the word.\n\n" <>
             "- RESTART: Click the restart button to restart the interface from where you started.\n\n" <>
             "- RESET: Clear all the words in the interface, this will end an ongoing exercise.\n"
-        ]
-    );
+        ];
     
     (* User interface *)
+    
+    (* Buttons and user actions are disabled until they can be actually triggered, following the business logic of the game *)
     Panel[
         Grid[{
 	        {Style["WORD EMBEDDINGS", FontSize -> 18], SpanFromLeft},    
@@ -71,6 +70,8 @@ createDemo[] := DynamicModule[
 		        Row[{
 	                InputField[Dynamic[wordInput], String, ContinuousAction -> True, FieldHint -> "Type a word", Enabled -> exerciseMode == False],
 	                Dynamic[Button["ADD TO PLOT", 
+	                    (* If user's input word is valid and is not already in the list of words it's added to it *)
+	                    (* Otherwise a message is produced *)
 	                    If[checkWord[wordInput],
 						    If[!MemberQ[words, ToLowerCase[wordInput]],
 						        AppendTo[words, ToLowerCase[wordInput]],
@@ -82,8 +83,10 @@ createDemo[] := DynamicModule[
 	                ]]
 	            }], SpanFromLeft
 	        },
+	        (* Plot cell *)
 	        {Dynamic@drawPlot[words, targetWord, exerciseMode, exerciseFinished], SpanFromLeft},
 	        {Style["YOUR WORDS (HOVER FOR DEFINITIONS)", FontSize -> 12, Underlined], SpanFromLeft},
+	        (* Generate tooltip for the word list using WordData *)
 	        {Dynamic[Row[Tooltip[Style[ToUpperCase[#], Black, Bold, 14, "Hyperlink"], WordData[#, "Definitions"]] & /@ words, ", "]], SpanFromLeft},
 	        {
 		        Dynamic[Row[{
@@ -146,6 +149,7 @@ createDemo[] := DynamicModule[
 	                        words = Table[generateRandomWord[seed], {seed, spawnSeed, spawnSeed + 4}]; 
 		                    exerciseMode = False; 
 		                    exerciseFinished = False;
+		                    numHints = 0;
 		                    hints = {}; 
 		                    targetWord,
 		                    BaseStyle -> {Background -> LightGreen, FontSize -> 12}
@@ -153,7 +157,8 @@ createDemo[] := DynamicModule[
 	                    Button["CLEAR ALL",
 		                    words = {}; 
 		                    exerciseMode = False; 
-		                    hints = {}; 
+		                    hints = {};
+		                    numHints = 0; 
 		                    exerciseFinished = False;
 		                    targetWord,
 		                    BaseStyle -> {Background -> LightRed, FontSize -> 12}
@@ -400,14 +405,17 @@ checkWord[word_, OptionsPattern[{Verbose -> True}]] := Module[
 
     (* If the word does not have a vector representation, show a message and return false *)
     If[!embeddingExists, 
-        If[verbose, MessageDialog["Please enter a common English word."]]; 
+        If[verbose, MessageDialog["Please enter a common English Noun"]]; 
         Return[False]
     ];
 
     (* If the word is not in the built-in word list, show a message and return false *)
     (* WordList default call is a list of common English words *)
+    (* Using "Noun" as type seems to keep also adjectives and verbs because some adjectives and verbs
+       may also have multiple meanings "homonym words" e.g good as adjective and good as a noun "my goods".
+    *)
     If[!MemberQ[WordList["Noun"], wordLower], 
-        If[verbose, MessageDialog["Please enter a common English word."]]; 
+        If[verbose, MessageDialog["Please enter a common English Noun"]]; 
         Return[False]
     ];
 
@@ -427,8 +435,8 @@ getTopNNearest[word_, n_] := Module[
     wordLower = ToLowerCase[word];
     (* Check if the provided word is valid then return the n nearest words *)
     If[checkWord[word],
-        nNearest = DeleteCases[Nearest[$word2vec, $word2vec[wordLower], n + 1], wordLower]; 
         (* Remove the input word if it's included *)
+        nNearest = DeleteCases[Nearest[$word2vec, $word2vec[wordLower], n + 1], wordLower];
         Return[nNearest],
         None
     ]
