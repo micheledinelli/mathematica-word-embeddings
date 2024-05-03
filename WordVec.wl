@@ -23,10 +23,10 @@ Begin["`Private`"];
 
 
 (* Global variables *)
-$net = NetModel["ConceptNet Numberbatch Word Vectors V17.06 (Raw Model)"];
-$words = NetExtract[$net,"Input"][["Labels"]];
-$vecs = Normal@NetExtract[$net, "Weights"];
-$word2vec = AssociationThread[$words -> $vecs];
+net = NetModel["ConceptNet Numberbatch Word Vectors V17.06 (Raw Model)"];
+words = NetExtract[net,"Input"][["Labels"]];
+vecs = Normal@NetExtract[net, "Weights"];
+word2vec = AssociationThread[words -> vecs];
 
 
 Main[] := createDemo[]
@@ -228,7 +228,7 @@ plotEmbeddings[words_] := Module[
     colors = ColorData[97] /@ Range[Length[words]];
     
     (* Get the embeddings for the words *)
-    embeddings = $word2vec /@ words;
+    embeddings = word2vec /@ words;
     
     (* Perform PCA for dimensionality reduction to 3D *)
     pca3D = PrincipalComponents[embeddings][[All, 1 ;; 3]];
@@ -275,7 +275,7 @@ checkGuess[targetWord_, wordIn_] := Module[
     
     (* Calculate the Euclidean distance between the target word's vector 
        and the user input word's vector *)
-    dst = EuclideanDistance[$word2vec[targetWord], $word2vec[wordIn]];
+    dst = EuclideanDistance[word2vec[targetWord], word2vec[wordIn]];
     
     (* Create a message template to display the distance *)
     dstMessage = StringTemplate["`a` is `dst` far from the target using Euclidean Distance"][<|"a" -> wordIn, "dst" -> dst|>];
@@ -368,7 +368,7 @@ getEmbedding[word_] := Module[
 	wordLower = ToLowerCase[word];
 	
     (* Check if the word is suitable for being embedded then return the embedding o/w none *)
-	If[checkWord[word], Return[$word2vec[wordLower]]; Return[None]];
+	If[checkWord[word], Return[word2vec[wordLower]]; Return[None]];
 ]
 
 
@@ -397,7 +397,7 @@ checkWord[word_, OptionsPattern[{Verbose -> True}]] := Module[
     (* Check if the word has a valid embedding representation *)
     Quiet[
         Check[
-            vector = $net[wordLower];
+            vector = net[wordLower];
             embeddingExists = True,
             embeddingExists = False
         ]
@@ -435,6 +435,10 @@ getTopNNearest[word_, n_] := Module[
     wordLower = ToLowerCase[word];
     (* Check if the provided word is valid then return the n nearest words *)
     If[checkWord[word],
+<<<<<<< Updated upstream
+=======
+        nNearest = DeleteCases[Nearest[word2vec, word2vec[wordLower], n + 1], wordLower]; 
+>>>>>>> Stashed changes
         (* Remove the input word if it's included *)
         nNearest = DeleteCases[Nearest[$word2vec, $word2vec[wordLower], n + 1], wordLower];
         Return[nNearest],
@@ -475,10 +479,10 @@ plotExercise[words_, exerciseWord_] := Module[
   
     (* Get the embeddings for all words *)
     colors = ColorData[97] /@ Range[Length[words]];
-    embeddings = Map[$word2vec, words];
+    embeddings = Map[word2vec, words];
     
     (* Get the embedding for the exercise word *)
-    exerciseEmbedding = $word2vec[exerciseWord];
+    exerciseEmbedding = word2vec[exerciseWord];
     
     (* Combine the embeddings with the exercise embedding *)
     embeddings = Append[embeddings, exerciseEmbedding];
