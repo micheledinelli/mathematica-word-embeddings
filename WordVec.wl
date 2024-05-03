@@ -26,7 +26,9 @@ Begin["`Private`"];
 net = NetModel["ConceptNet Numberbatch Word Vectors V17.06 (Raw Model)"];
 words = NetExtract[net,"Input"][["Labels"]];
 vecs = Normal@NetExtract[net, "Weights"];
-word2vec = AssociationThread[words -> vecs];
+word2vec = AssociationThread[words -> vecs]; 
+fontSize = 12; (* font size for the plot*)
+randomSeed = 83; (* random seed for the first exercise generation*)
 
 
 Main[] := createDemo[]
@@ -34,7 +36,7 @@ Main[] := createDemo[]
 
 createDemo[] := DynamicModule[
     {
-	    words = Table[generateRandomWord[seed], {seed, 42, 42 + 4}], 
+	    words = Table[generateRandomWord[seed], {seed, randomSeed, randomSeed + 4}], 
 	    wordInput,  
 	    exerciseMode = False,
 	    targetWord,
@@ -61,7 +63,7 @@ createDemo[] := DynamicModule[
     (* Buttons and user actions are disabled until they can be actually triggered, following the business logic of the game *)
     Panel[
         Grid[{
-	        {Style["WORD EMBEDDINGS", FontSize -> 18], SpanFromLeft},    
+	        {Style["WORD EMBEDDINGS", FontSize -> fontSize + 6], SpanFromLeft}, 
 	        {
 		        Row[{Button["READ A SMALL GUIDE", infoAction], "" }],
 	            SpanFromLeft
@@ -85,7 +87,7 @@ createDemo[] := DynamicModule[
 	        },
 	        (* Plot cell *)
 	        {Dynamic@drawPlot[words, targetWord, exerciseMode, exerciseFinished], SpanFromLeft},
-	        {Style["YOUR WORDS (HOVER FOR DEFINITIONS)", FontSize -> 12, Underlined], SpanFromLeft},
+	        {Style["YOUR WORDS (HOVER FOR DEFINITIONS)", FontSize -> fontSize, Underlined], SpanFromLeft},
 	        (* Generate tooltip for the word list using WordData *)
 	        {Dynamic[Row[Tooltip[Style[ToUpperCase[#], Black, Bold, 14, "Hyperlink"], WordData[#, "Definitions"]] & /@ words, ", "]], SpanFromLeft},
 	        {
@@ -115,7 +117,7 @@ createDemo[] := DynamicModule[
 	                    ]], SpanFromLeft
 	                },					
 					{
-						Style["NUMBER OF HINTS: ", FontSize -> 12], SpanFromLeft
+						Style["NUMBER OF HINTS: ", FontSize -> fontSize], SpanFromLeft
 					},
 					{
 						Column[{
@@ -129,7 +131,7 @@ createDemo[] := DynamicModule[
 						}], SpanFromLeft
 					},
 					{
-						Style["YOUR HINTS (HOVER FOR DEFINITIONS)", FontSize -> 12, Underlined], SpanFromLeft
+						Style["YOUR HINTS (HOVER FOR DEFINITIONS)", FontSize -> fontSize, Underlined], SpanFromLeft
 					},
 					{
 						Dynamic[Row[Tooltip[Style[ToUpperCase[#], Black, Bold, 14, "Hyperlink"], WordData[#, "Definitions"]] & /@ hints, ", "]], SpanFromLeft
@@ -145,14 +147,14 @@ createDemo[] := DynamicModule[
 	                },
 	                {
 	                    Dynamic[Button["RESTART", 
-	                        spawnSeed = RandomInteger[100];
+	                        spawnSeed = RandomInteger[100]; (* this variable cannot be global and parameterized otherwise the restart generation won't be work. Always the same words would be generated.*)
 	                        words = Table[generateRandomWord[seed], {seed, spawnSeed, spawnSeed + 4}]; 
 		                    exerciseMode = False; 
 		                    exerciseFinished = False;
 		                    numHints = 0;
 		                    hints = {}; 
 		                    targetWord,
-		                    BaseStyle -> {Background -> LightGreen, FontSize -> 12}
+		                    BaseStyle -> {Background -> LightGreen, FontSize -> fontSize}
 	                    ]], 
 	                    Button["CLEAR ALL",
 		                    words = {}; 
@@ -161,7 +163,7 @@ createDemo[] := DynamicModule[
 		                    numHints = 0; 
 		                    exerciseFinished = False;
 		                    targetWord,
-		                    BaseStyle -> {Background -> LightRed, FontSize -> 12}
+		                    BaseStyle -> {Background -> LightRed, FontSize -> fontSize}
 		                ]
 	                },
 	                {
