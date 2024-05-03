@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## 1.2.0
+
+* Added word list in exported plot
+  ([#71a7af6](https://github.com/micheledinelli/mathematica-word-embeddings/commit/71a7af6d59cc5a7f0e65f064b64fb70b77cfb89f), @micheledinelli)
+* Parametrized style variables (e.g fontSize)
+  ([#f6621a3](https://github.com/micheledinelli/mathematica-word-embeddings/commit/f6621a3eb87b837c56b940914394438fada6d05a), @MaxRondelli)
+* Fixed a bug where `numHints` variable was not resetted after restarting the game
+  ([#dcd0c82](https://github.com/micheledinelli/mathematica-word-embeddings/commit/dcd0c8235aca1845bb60f8fa9276c68a6f40654c), @micheledinelli)
+* Removed `$` from global variables
+  ([#f286062](https://github.com/micheledinelli/mathematica-word-embeddings/commit/f286062225bc9e35ffc74e756467d76fb5964a49), @MaxRondelli)
+
 ## 1.1.1
 
 * Some minor changes in Tutorial.nb file
