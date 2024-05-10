@@ -16,7 +16,7 @@
 BeginPackage["WordVec`"];
 
 
-Main::usage = "Main[seed] main routine of the WordVec package.";
+Main::usage = "Main[] main routine of the WordVec package.";
 
 
 Begin["`Private`"];
