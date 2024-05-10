@@ -421,10 +421,7 @@ checkWord[word_, OptionsPattern[{Verbose -> True}]] := Module[
     verbose = OptionValue[Verbose];
 
    \.14 (* Check if the word is an empty string *)
-    If[word === "", 
-        If[verbose, MessageDialog["Please enter a non-empty word."]]; 
-        Return[False]
-    ]; 
+    If[!embeddingExists && verbose, MessageDialog["Please enter a common English Noun"]; Return[False]];
 
     (* Convert the word to lower case *)
     wordLower = ToLowerCase[word];
@@ -439,10 +436,7 @@ checkWord[word_, OptionsPattern[{Verbose -> True}]] := Module[
     ];
 
     (* If the word does not have a vector representation, show a message and return false *)
-    If[!embeddingExists, 
-        If[verbose, MessageDialog["Please enter a common English Noun"]]; 
-        Return[False]
-    ];
+    If[!embeddingExists && verbose, MessageDialog["Please enter a common English Noun"]; Return[False]];
 
     (* If the word is not in the built-in word list, show a message and return false *)
     (* WordList default call is a list of common English words *)
