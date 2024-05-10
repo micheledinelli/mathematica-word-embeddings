@@ -1,6 +1,6 @@
 # CHANGELOG
 
-Unreleased
+## Unreleased
 
 * Added support to rotation tracking to reproduce the plot when exported
   ([#a08b908](https://github.com/micheledinelli/mathematica-word-embeddings/commit/a08b908c7beb8a251e0fa873a96e294963d15178), @micheledinelli)
