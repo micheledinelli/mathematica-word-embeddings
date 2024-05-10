@@ -45,7 +45,7 @@ createDemo[] := DynamicModule[
 	    exerciseFinished = False
     },
 
-	infoAction := MessageDialog[
+	infoAction := MessageDialog[Text[
             "This is a demo interface for exploring word embeddings.\n" <>
             "You'll see some words in the space, you can interact with the plot and see words are represented as vectors.\n" <>
 			"You can add new words to the plot. Choose carefully because only common English nouns are accepted.\n\n" <>
@@ -55,7 +55,8 @@ createDemo[] := DynamicModule[
             "A red dot will appear. Try to guess which word is close to that point!\n\n" <>
             "- SHOW HINTS: You can view hints that will help you guessing the word.\n\n" <>
             "- RESTART: Click the restart button to restart the interface from where you started.\n\n" <>
-            "- RESET: Clear all the words in the interface, this will end an ongoing exercise.\n"
+            "- RESET: Clear all the words in the interface, this will end an ongoing exercise.\n", 
+            BaseStyle->{FontSize->14}]
         ];
     
     (* User interface *)
