@@ -280,6 +280,7 @@ plotEmbeddings[words_, OptionsPattern[{ExportMode -> False}]] := Module[
 	    Return[graphicsWithText]
 	];
 
+	graphics = Show[graphics, ImagePadding -> {{50, 50}, {50, 50}}];
     (* Return the graphics *)
     Return[graphics]
 ]
@@ -554,6 +555,7 @@ plotExercise[words_, exerciseWord_] := Module[
     ImageSize -> Large
     ];
     
+    graphics = Show[graphics, ImagePadding -> {{50, 50}, {50, 50}}];
     graphics
 ]
 
