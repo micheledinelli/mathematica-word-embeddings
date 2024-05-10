@@ -1,5 +1,16 @@
 # CHANGELOG
 
+Unreleased
+
+* Added support to rotation tracking to reproduce the plot when exported
+  ([#a08b908](https://github.com/micheledinelli/mathematica-word-embeddings/commit/a08b908c7beb8a251e0fa873a96e294963d15178), @micheledinelli)
+* Changed tutorial font size 
+  ([#89e816e](https://github.com/micheledinelli/mathematica-word-embeddings/commit/89e816eb12bf45ac8e48812bcaa60b780e791c82), @MaxRondelli)
+* Add ImagePadding for the graphics plot 
+  ([#14cf272](https://github.com/micheledinelli/mathematica-word-embeddings/commit/14cf2722ff9efa2265169ccda8e9b1656922d35d), @MaxRondelli)
+* Swap Generate exercise button with input text guess word 
+  ([#fa1fdf9](https://github.com/micheledinelli/mathematica-word-embeddings/commit/fa1fdf9ad8ce474fc27fbb0f5d185ac7747192a8), @MaxRondelli)
+
 ## 1.2.0
 
 * Added word list in exported plot
