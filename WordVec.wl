@@ -29,6 +29,7 @@ vecs = Normal@NetExtract[net, "Weights"];
 word2vec = AssociationThread[words -> vecs]; 
 fontSize = 12; (* font size for the plot*)
 randomSeed = 83; (* random seed for the first exercise generation*)
+viewPoint = {1,1,1}
 
 
 Main[] := createDemo[]
@@ -266,6 +267,7 @@ plotEmbeddings[words_, OptionsPattern[{ExportMode -> False}]] := Module[
         Axes -> True, (* Show axes *)
         AxesLabel -> {"PC1", "PC2", "PC3"}, (* Label axes *)
         AxesStyle -> Directive[Black, Bold], (* Style the axes *)
+        ViewPoint -> Dynamic[viewPoint],
         ImageSize -> Large (* Set image size *)
     ];
     
@@ -275,7 +277,7 @@ plotEmbeddings[words_, OptionsPattern[{ExportMode -> False}]] := Module[
 	
 	    (* Create rows to put thems below the 3D plot *)
 	    textRows = Map[GraphicsRow[Text[Style[#, 8]] & /@ #] &, wordRows];
-	
+	    
 	    (* Combine the 3D plot and the text rows *)
 	    graphicsWithText = GraphicsColumn[{graphics, Sequence @@ textRows}];
 	    Return[graphicsWithText]
