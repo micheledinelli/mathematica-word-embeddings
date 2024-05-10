@@ -96,7 +96,20 @@ createDemo[] := DynamicModule[
 	        {Style["YOUR WORDS (HOVER FOR DEFINITIONS)", FontSize -> fontSize, Underlined], SpanFromLeft},
 	        (* Generate tooltip for the word list using WordData *)
 	        {Dynamic[Row[Tooltip[Style[ToUpperCase[#], Black, Bold, 14, "Hyperlink"], WordData[#, "Definitions"]] & /@ words, ", "]], SpanFromLeft},
+	        
 	        {
+	            (* The graphic elements are placed on a Grid *)
+	            Grid[{
+	                {
+	                    (* Button that allows to create an excercise starting from the input words *)
+	                    Dynamic[Button["GENERATE EXERCISE", 
+	                        (* Input words are binded to a word to guess *)
+	                        targetWord = generateExercise[words];
+	                        exerciseMode = True,
+	                        Enabled -> Length[words] > 0 && exerciseMode == False
+	                    ]], SpanFromLeft
+	                },
+	                {
 		        Dynamic[Row[{
 	                (* The user can use this InputField to try to guess the targetWord *)
 	                InputField[Dynamic[wordInput], String, ContinuousAction -> True, FieldHint -> "Try to guess", Enabled -> exerciseMode == True],
@@ -114,18 +127,7 @@ createDemo[] := DynamicModule[
 	                ]]
 	            }]], SpanFromLeft
 	        },
-	        {
-	            (* The graphic elements are placed on a Grid *)
-	            Grid[{
-	                {
-	                    (* Button that allows to create an excercise starting from the input words *)
-	                    Dynamic[Button["GENERATE EXERCISE", 
-	                        (* Input words are binded to a word to guess *)
-	                        targetWord = generateExercise[words];
-	                        exerciseMode = True,
-	                        Enabled -> Length[words] > 0 && exerciseMode == False
-	                    ]], SpanFromLeft
-	                },					
+	                										
 					{
 						Style["NUMBER OF HINTS: ", FontSize -> fontSize], SpanFromLeft
 					},
@@ -417,7 +419,7 @@ checkWord[word_, OptionsPattern[{Verbose -> True}]] := Module[
     (* Extract the value of the Verbose option *)
     verbose = OptionValue[Verbose];
 
-    (* Check if the word is an empty string *)
+   \.14 (* Check if the word is an empty string *)
     If[word === "", 
         If[verbose, MessageDialog["Please enter a non-empty word."]]; 
         Return[False]
