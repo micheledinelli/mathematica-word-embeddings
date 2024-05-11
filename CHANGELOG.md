@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+* Refactor WordVec.wl comments 
+  ([#a351ec0](https://github.com/micheledinelli/mathematica-word-embeddings/commit/a351ec0048be5e0a17a9471c0d26c1dda705649e), @mussida)
 * Added support to rotation tracking to reproduce the plot when exported
   ([#a08b908](https://github.com/micheledinelli/mathematica-word-embeddings/commit/a08b908c7beb8a251e0fa873a96e294963d15178), @micheledinelli)
 * Changed tutorial font size 
