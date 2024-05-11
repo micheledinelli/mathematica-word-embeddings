@@ -27,8 +27,8 @@ net = NetModel["ConceptNet Numberbatch Word Vectors V17.06 (Raw Model)"];
 words = NetExtract[net,"Input"][["Labels"]];
 vecs = Normal@NetExtract[net, "Weights"];
 word2vec = AssociationThread[words -> vecs]; 
-fontSize = 12; (* font size for the plot *)
-randomSeed = 83; (* random seed for the first exercise generation *)
+fontSize = 12;
+randomSeed = 83;
 viewPoint = {1,1,1}
 
 
@@ -440,9 +440,9 @@ checkWord[word_, OptionsPattern[{Verbose -> True}]] := Module[
 
     (* If the word is not found in the built-in word list, display a message and return false *)
     (* WordList default call is a list of common English words *)
-    (* When using 'Noun' as the type, it may also include adjectives and verbs because certain words,
-     like 'good', can function as both an adjective and a noun ('my goods'),
-      showcasing the phenomenon of homonyms with multiple meanings
+    (* 
+       When using 'Noun' as the type, adjectives and verbs may also be included, as some words, such as 'good', 
+       can operate as both an adjective and a noun ('my goods'), highlighting the issue of homonyms.
     *)
     If[!MemberQ[WordList["Noun"], wordLower], 
         If[verbose, MessageDialog["Please enter a common English Noun"]]; 
