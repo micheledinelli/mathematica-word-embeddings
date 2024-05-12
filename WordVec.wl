@@ -272,8 +272,8 @@ plotEmbeddings[words_, OptionsPattern[{ExportMode -> False}]] := Module[
     
 	If[exportMode,
 	    (* Split the list of words into rows, each containing up to 5 words *)
-	    wordRows = Partition[words, 5];
-	
+	    wordRows = Partition[words, UpTo[5]];
+		
 	    (* Create rows to place them beneath the 3D plot *)
 	    textRows = Map[GraphicsRow[Text[Style[#, 8]] & /@ #] &, wordRows];
 	    
