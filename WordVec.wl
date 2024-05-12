@@ -29,7 +29,7 @@ vecs = Normal@NetExtract[net, "Weights"];
 word2vec = AssociationThread[words -> vecs]; 
 fontSize = 12;
 randomSeed = 83;
-viewPoint = {1,1,1}
+viewPoint = {1.3, -2.4, 2}
 
 
 Main[] := createDemo[]
@@ -266,8 +266,8 @@ plotEmbeddings[words_, OptionsPattern[{ExportMode -> False}]] := Module[
         Axes -> True, (* Show axes *)
         AxesLabel -> {"PC1", "PC2", "PC3"}, (* Label axes *)
         AxesStyle -> Directive[Black, Bold], (* Style the axes *)
-        ViewPoint -> Dynamic[viewPoint],
-        ImageSize -> Large (* Set image size *)
+        ImageSize -> Large, (* Set image size *)
+        ViewPoint -> Dynamic[viewPoint] (* Dynamically adjust the view point *)
     ];
     
 	If[exportMode,
