@@ -1,7 +1,17 @@
 # CHANGELOG
 
-## Unreleased
+## 2.0.0
 
+* Updated export plot mode allowing list produced with Partition to have different lengths
+  ([#e74a186](https://github.com/micheledinelli/mathematica-word-embeddings/commit/e74a1861769339f266577edd60b74fb93dd58b2e), @micheledinelli)
+* Added start and clear button to handle the package execution
+  ([#533a578](https://github.com/micheledinelli/mathematica-word-embeddings/commit/533a57888dd166e791375670b604bda644e3fa6a), @micheledinelli)
+* Added SHA-256 and Euclidean distance section in Tutorial.nb
+  ([#96870b3](https://github.com/micheledinelli/mathematica-word-embeddings/commit/96870b3cc87b1a2889a2721142f095828d443de9), @MaxRondelli)
+* Updated viewPoint handling in WordVec.wl
+  ([#5988e65](https://github.com/micheledinelli/mathematica-word-embeddings/commit/5988e6531d78f62db9548552eba8fdeec8ef4bb0), @micheledinelli)
+* Revised Tutorial.nb content 
+  ([#55e2b7a](https://github.com/micheledinelli/mathematica-word-embeddings/commit/55e2b7a908e3e4567e2e4ae399150478030faca9), @micheledinelli)
 * Refactor WordVec.wl comments 
   ([#a351ec0](https://github.com/micheledinelli/mathematica-word-embeddings/commit/a351ec0048be5e0a17a9471c0d26c1dda705649e), @mussida)
 * Added support to rotation tracking to reproduce the plot when exported
