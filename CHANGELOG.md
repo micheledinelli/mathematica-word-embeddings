@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## 2.1.0
+
+* Fixed typos and added content in Tutorial.nb 
+  ([#710a548](https://github.com/micheledinelli/mathematica-word-embeddings/commit/710a54821258632cfa61b8095b186f2c0a751b68), @micheledinelli)
+
 ## 2.0.0
 
 * Updated export plot mode allowing list produced with Partition to have different lengths
