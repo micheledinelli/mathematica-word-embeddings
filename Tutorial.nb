@@ -10,10 +10,10 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       158,          7]
-NotebookDataLength[   1153633,      19236]
-NotebookOptionsPosition[   1147020,      19114]
-NotebookOutlinePosition[   1147415,      19130]
-CellTagsIndexPosition[   1147372,      19127]
+NotebookDataLength[   1153845,      19247]
+NotebookOptionsPosition[   1147096,      19122]
+NotebookOutlinePosition[   1147494,      19138]
+CellTagsIndexPosition[   1147451,      19135]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
@@ -9540,16 +9540,17 @@ e4858a98f88c"],
 
 Cell[BoxData[
  RowBox[{
-  RowBox[{
+  StyleBox[
    RowBox[{
+    RowBox[{
+     RowBox[{"word2vec", 
+      RowBox[{"(", "\"\<king\>\"", ")"}]}], "-", 
+     RowBox[{"word2vec", 
+      RowBox[{"(", "\"\<man\>\"", ")"}]}], "+", 
+     RowBox[{"word2vec", 
+      RowBox[{"(", "\"\<woman\>\"", ")"}]}]}], "\[TildeTilde]", " ", 
     RowBox[{"word2vec", 
-     RowBox[{"(", "\"\<king\>\"", ")"}]}], "-", 
-    RowBox[{"word2vec", 
-     RowBox[{"(", "\"\<man\>\"", ")"}]}], "+", 
-    RowBox[{"word2vec", 
-     RowBox[{"(", "\"\<woman\>\"", ")"}]}]}], "\[TildeTilde]", " ", 
-   RowBox[{"word2vec", 
-    RowBox[{"(", "\"\<queen\>\"", ")"}]}]}], 
+     RowBox[{"(", "\"\<queen\>\"", ")"}]}]}], "DisplayFormula"], 
   "\[IndentingNewLine]"}]], "DisplayFormula",
  CellChangeTimes->{{3.924427483274168*^9, 3.924427506121257*^9}, {
   3.9244275834697313`*^9, 3.924427600139585*^9}, {3.924427677211321*^9, 
@@ -18678,29 +18679,30 @@ Cell["Euclidean Distance ", "Subsection",
   3.9245340805624447`*^9}},ExpressionUUID->"216a7ed7-ad6b-4f32-9b04-\
 e21605a7fa72"],
 
-Cell["\<\
-Euclidean distance [5] is a measure of the straight-line distance between two \
-points in Euclidean space [6]. It\[CloseCurlyQuote]s essentially the distance \
-between two points in a Cartesian coordinate system. In two dimensions (2D), \
-the Euclidean distance between points (x1, y1) and (x2, y2) is calculated \
-with the following formula: \[Sqrt][ (x2 \[Dash] x1)^2 + (y2 - y1)^2].
-Instead, the formula for one dimension is D = |x1  - x2|, where D is the \
-Euclidean distance, x1 and x2 are the positions of the two points. The \
-absolute value bars in the formula are a result of distance being a scalar \
-quantity, so it cannot be negative.
-
-The Euclidean Distance, in our case, is used to calculate the distance \
-between the words in the plot.\
-\>", "Text",
- CellChangeTimes->{{3.9245341728371477`*^9, 3.924534209264739*^9}, {
-  3.924534300024375*^9, 3.9245343299842167`*^9}, {3.924534420193635*^9, 
-  3.924534440518488*^9}, {3.9245345136425877`*^9, 3.92453454724435*^9}, {
-  3.9245345955138483`*^9, 3.9245346170453863`*^9}, {3.924536505023973*^9, 
-  3.924536543144506*^9}, {3.9245365989938374`*^9, 3.9245367180276327`*^9}, {
-  3.9245368020314207`*^9, 3.92453680432368*^9}, {3.924536839367779*^9, 
+Cell[TextData[{
+ "Euclidean distance [5] is a measure of the straight-line distance between \
+two points in Euclidean space [6]. It\[CloseCurlyQuote]s essentially the \
+distance between two points in a Cartesian coordinate system. In two \
+dimensions (2D), the Euclidean distance between points P1 = (x1, y1) and P2 = \
+(x2, y2) is calculated with the following formula: \n\n",
+ StyleBox["\[Sqrt]((x2 - x1)^2 + (y2 - y1)^2)", "DisplayFormula"],
+ "\n\nInstead, the formula for one dimension is D = |x1  - x2|, where D is \
+the Euclidean distance, x1 and x2 are the x coordinates of the two points. \
+Distance result has to be a scalar quantity, absolute value is taken in order \
+to have non-negative distance measures.\n\nThe Euclidean Distance, in our \
+case, is used to calculate the distance between the words in the plot."
+}], "Text",
+ CellChangeTimes->{{3.9245341728371487`*^9, 3.924534209264739*^9}, {
+  3.924534300024375*^9, 3.924534329984217*^9}, {3.924534420193635*^9, 
+  3.924534440518488*^9}, {3.9245345136425886`*^9, 3.92453454724435*^9}, {
+  3.9245345955138483`*^9, 3.9245346170453873`*^9}, {3.924536505023973*^9, 
+  3.924536543144506*^9}, {3.924536598993838*^9, 3.924536718027634*^9}, {
+  3.9245368020314217`*^9, 3.92453680432368*^9}, {3.924536839367779*^9, 
   3.924536844121174*^9}, {3.924536994079735*^9, 3.924537062266231*^9}, {
-  3.9245371546457033`*^9, 3.924537156417961*^9}, {3.9245372481811123`*^9, 
-  3.924537248776596*^9}},ExpressionUUID->"5e4f9bbd-f128-47e4-8476-\
+  3.924537154645704*^9, 3.924537156417961*^9}, {3.9245372481811137`*^9, 
+  3.924537248776596*^9}, {3.924575373514504*^9, 3.92457541417992*^9}, {
+  3.924575454677861*^9, 
+  3.9245756220727043`*^9}},ExpressionUUID->"5e4f9bbd-f128-47e4-8476-\
 7bcc563679a5"]
 }, Open  ]]
 }, Open  ]],
@@ -18712,23 +18714,23 @@ Cell["Tutorial", "Section",
   3.923558039983561*^9}},ExpressionUUID->"1b742579-308f-49cb-9c81-\
 dc588f72f49b"],
 
-Cell["\<\
-Welcome to the word embeddings exploration interface! Here, you\
-\[CloseCurlyQuote]ll navigate through a visual representation of words in a \
-space, each word being represented as a vector. This interactive platform \
-allows you to delve into the relationships between words and their meanings. 
+Cell[CellGroupData[{
 
-The only prerequisite, the first time you use the program, is access to the \
-Internet. It is necessary in order to download the functionality required for \
-the program to run correctly. The functions illustrated below are not to be \
-carried out sequentially for the program to run smoothly. \
+Cell["Prerequisites", "Subsection",
+ CellChangeTimes->{{3.924575686817401*^9, 
+  3.924575694017808*^9}},ExpressionUUID->"b039f356-2039-4fc3-86dd-\
+28e0928f9b86"],
+
+Cell["\<\
+The only requirement is to have an Internet connection. After the package is \
+loaded, it will automatically index a word dictionary and download the \
+Word2Vec model from internet. \
 \>", "Text",
- CellChangeTimes->{
-  3.923558058908841*^9, 3.923728586322282*^9, {3.923728639110649*^9, 
-   3.9237286444598722`*^9}, {3.923728813684705*^9, 3.923728854142221*^9}, {
-   3.923729021009737*^9, 
-   3.923729069452773*^9}},ExpressionUUID->"79f68212-9595-4254-a423-\
-2936d86a3832"],
+ CellChangeTimes->{{3.924575804027293*^9, 3.924575806956595*^9}, {
+  3.924575982802215*^9, 
+  3.924575996696681*^9}},ExpressionUUID->"db06cb94-652b-45ce-92ae-\
+b085e0954cdb"]
+}, Open  ]],
 
 Cell[CellGroupData[{
 
@@ -18748,11 +18750,13 @@ the game. The game interface will appear. The \[OpenCurlyDoubleQuote]Clear\
 \[CloseCurlyDoubleQuote] button, instead, is used to clear the entire game \
 interface.
 
-If you want to replay the game, it is essential to perform the process just \
-listed again.\
+If you want to replay the game, it is essential to evaluate that section \
+again (actually only the last cell of the notebook would be enough).\
 \>", "Text",
  CellChangeTimes->{
-  3.924520578328165*^9},ExpressionUUID->"11e3f58c-e930-440f-883b-\
+  3.924520578328165*^9, {3.924575845692362*^9, 3.924575860329191*^9}, {
+   3.924576009563526*^9, 
+   3.9245760341463842`*^9}},ExpressionUUID->"11e3f58c-e930-440f-883b-\
 bd1ab37af7b2"]
 }, Open  ]],
 
@@ -18902,29 +18906,34 @@ Cell["Limitations", "Section",
   3.923549010233374*^9}},ExpressionUUID->"48d040a1-8c7d-4381-9795-\
 9d82bbd291bd"],
 
-Cell["\<\
-This project was carried out for academic purposes to produce a package that \
-can be used by a wide range of users. It is not intended to teach in depth \
-what \[OpenCurlyDoubleQuote]word embedding\[CloseCurlyDoubleQuote] is and how \
-it is used in reality. 
-The package is intended to introduce the topic of word embedding in a playful \
-way, so that the user can understand how a computer is able to distinguish \
-words from their vector representation first. The package offers an interface \
-that can provide an idea of what happens when word embedding is done and used \
-but cannot do so to the highest degree of accuracy. This is because the \
-vectors used in reality are expressed with many dimensions and to show them \
-requires performing significant dimensional reduction that also exports some \
-of the \[OpenCurlyDoubleQuote]semantics\[CloseCurlyDoubleQuote] from the \
-words.  Therefore, it is emphasized that low-dimensional vector \
-representation is highly dependent on dimensionality reduction techniques. \
-This is unavoidable but it is also interesting to note how the representation \
-changes by gradually adding words to it.\
-\>", "Text",
+Cell[TextData[{
+ "This project was carried out for academic purposes to produce a package \
+that can be used by a wide range of users. It is not intended to teach in \
+depth what ",
+ StyleBox["Word embedding",
+  FontSlant->"Italic"],
+ " is and how it is used in reality. \nThe package is intended to introduce \
+the topic of word embedding in a playful way, so that the user can understand \
+how a computer is able to distinguish words from their vector representation \
+first. The package offers an interface that can provide an idea of what \
+happens when ",
+ StyleBox["Word embedding",
+  FontSlant->"Italic"],
+ " is done and used but cannot do so to the highest degree of accuracy. This \
+is because the vectors used in reality are expressed with many dimensions and \
+to show them requires performing significant dimensional reduction that also \
+exports some of the semantics from the words.  Therefore, it is emphasized \
+that low-dimensional vector representation is highly dependent on \
+dimensionality reduction techniques. This is unavoidable but it is also \
+interesting to note how the representation changes by gradually adding words \
+to it."
+}], "Text",
  CellChangeTimes->{{3.923549013961851*^9, 3.923549026349511*^9}, {
   3.923549090399198*^9, 3.923549090572927*^9}, {3.923549233508727*^9, 
   3.923549249665718*^9}, {3.923549385442341*^9, 3.923549406765504*^9}, {
   3.9235494981598063`*^9, 3.923549505868973*^9}, {3.923558826868853*^9, 
-  3.923558827476599*^9}},ExpressionUUID->"87bf15d9-861c-4b85-9ca4-\
+  3.923558827476599*^9}, {3.9245759327791567`*^9, 
+  3.924575954140999*^9}},ExpressionUUID->"87bf15d9-861c-4b85-9ca4-\
 875621b9f53a"]
 }, Open  ]],
 
@@ -18948,16 +18957,15 @@ enhancement would allow the product to be used by new users. Finding \
 dictionaries in the new languages and a neural network capable of \
 comprehending them would be the first step towards implementing this new \
 capability. It implies that non-English words could have their embeddings \
-made by it. This might be the biggest challenge to our service.  This might \
-be the biggest challenge for our service because the code was intended to be \
-implemented as broadly as possible in order to accommodate similar future \
-implementations.\
+made by it. This might be the biggest challenge for our package because the \
+code was intended to be implemented as broadly as possible in order to \
+accommodate similar future implementations.\
 \>", "Text",
  CellChangeTimes->{{3.922264623776345*^9, 3.922264627253761*^9}, {
    3.923547011652831*^9, 3.923547050916779*^9}, {3.923547626153202*^9, 
    3.923547739475324*^9}, 3.923547779533021*^9, {3.923548833043709*^9, 
-   3.923548850425446*^9}, 
-   3.924349996964554*^9},ExpressionUUID->"dcdcea59-b704-44df-8a09-\
+   3.923548850425446*^9}, 3.924349996964554*^9, {3.924575881993435*^9, 
+   3.9245759122761917`*^9}},ExpressionUUID->"dcdcea59-b704-44df-8a09-\
 0180c415bcc0"]
 }, Open  ]],
 
@@ -18975,7 +18983,7 @@ distance between words, for example add support for Word Mover\
 \>", "Text",
  CellChangeTimes->{{3.9235489206309357`*^9, 3.923548978332538*^9}, {
   3.924350001751693*^9, 3.924350014382379*^9}, {3.924537349967496*^9, 
-  3.9245373758243647`*^9}},ExpressionUUID->"dfafe232-b3fa-4972-874d-\
+  3.924537375824365*^9}},ExpressionUUID->"dfafe232-b3fa-4972-874d-\
 2bb2f9a9d000"]
 }, Open  ]]
 }, Open  ]],
@@ -19013,7 +19021,7 @@ examples.html
    3.924430592807616*^9, 3.9244305931928797`*^9}, {3.924513878947856*^9, 
    3.924513886056939*^9}, {3.924536586981618*^9, 3.924536590064885*^9}, {
    3.924537146543042*^9, 3.924537148537369*^9}, {3.924537341644938*^9, 
-   3.9245373705395947`*^9}},ExpressionUUID->"600ddbf9-990f-4861-8118-\
+   3.9245373705395956`*^9}},ExpressionUUID->"600ddbf9-990f-4861-8118-\
 54814b5f8bc1"]
 }, Open  ]],
 
@@ -19114,7 +19122,7 @@ Cell[BoxData[
 },
 WindowSize->{1387.5, 762},
 WindowMargins->{{0, Automatic}, {Automatic, 0}},
-FrontEndVersion->"14.0 for Linux x86 (64-bit) (December 12, 2023)",
+FrontEndVersion->"14.0 for Mac OS X ARM (64-bit) (December 12, 2023)",
 StyleDefinitions->"Default.nb",
 ExpressionUUID->"0ecd0540-32b9-4810-95f7-0bf72e518c4f"
 ]
@@ -19145,7 +19153,7 @@ Cell[6657, 160, 441, 7, 67, "Section",ExpressionUUID->"cb8a10f3-05ab-4ccd-959d-f
 Cell[7101, 169, 766, 13, 104, "Text",ExpressionUUID->"457fa840-2560-4b62-b6e7-590e22724227"],
 Cell[CellGroupData[{
 Cell[7892, 186, 313, 5, 54, "Subsection",ExpressionUUID->"f03e8176-7209-4c6f-8df3-b9d1f2c2493a"],
-Cell[8208, 193, 526534, 8645, 1127, "Text",ExpressionUUID->"9888dafc-1bba-4895-bdf2-85ee4eefdbdc"]
+Cell[8208, 193, 526534, 8645, 1128, "Text",ExpressionUUID->"9888dafc-1bba-4895-bdf2-85ee4eefdbdc"]
 }, Open  ]],
 Cell[CellGroupData[{
 Cell[534779, 8843, 164, 3, 54, "Subsection",ExpressionUUID->"871a53f9-7535-48e4-a4c3-ed5d0230a1d0"],
@@ -19155,87 +19163,90 @@ Cell[534946, 8848, 2995, 59, 449, "Text",ExpressionUUID->"4d0245e8-07b7-4b0f-ab0
 Cell[CellGroupData[{
 Cell[537990, 8913, 204, 4, 67, "Section",ExpressionUUID->"cc871546-d101-49eb-a9ad-5f07535a26e8"],
 Cell[538197, 8919, 36476, 619, 593, "Text",ExpressionUUID->"c5ff4f1f-9e26-41f4-9f6b-e4858a98f88c"],
-Cell[574676, 9540, 626, 16, 49, "DisplayFormula",ExpressionUUID->"0b1d1dd5-41c8-4557-bea5-27347894bd72"],
-Cell[575305, 9558, 80430, 1331, 466, "Text",ExpressionUUID->"b87c2218-e1af-4e33-bb42-7cc52aa7b02e"]
+Cell[574676, 9540, 667, 17, 50, "DisplayFormula",ExpressionUUID->"0b1d1dd5-41c8-4557-bea5-27347894bd72"],
+Cell[575346, 9559, 80430, 1331, 466, "Text",ExpressionUUID->"b87c2218-e1af-4e33-bb42-7cc52aa7b02e"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[655772, 10894, 179, 3, 67, "Section",ExpressionUUID->"09c1723e-9c4c-4d0f-96f3-126aaea95bae"],
-Cell[655954, 10899, 470257, 7726, 531, "Text",ExpressionUUID->"7d778497-547e-4c0c-9a44-7334ec74e4fb"]
+Cell[655813, 10895, 179, 3, 67, "Section",ExpressionUUID->"09c1723e-9c4c-4d0f-96f3-126aaea95bae"],
+Cell[655995, 10900, 470257, 7726, 531, "Text",ExpressionUUID->"7d778497-547e-4c0c-9a44-7334ec74e4fb"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[1126248, 18630, 188, 3, 67, "Section",ExpressionUUID->"b251ecea-6663-432a-8724-01245b91f90d"],
-Cell[1126439, 18635, 292, 7, 35, "Text",ExpressionUUID->"84b4c4f4-f494-4452-b107-12ab1239589c"],
+Cell[1126289, 18631, 188, 3, 67, "Section",ExpressionUUID->"b251ecea-6663-432a-8724-01245b91f90d"],
+Cell[1126480, 18636, 292, 7, 35, "Text",ExpressionUUID->"84b4c4f4-f494-4452-b107-12ab1239589c"],
 Cell[CellGroupData[{
-Cell[1126756, 18646, 156, 3, 54, "Subsection",ExpressionUUID->"5a9e95b4-06dc-43dd-a6ba-9828e38a4bbe"],
-Cell[1126915, 18651, 1139, 19, 150, "Text",ExpressionUUID->"51f4a9ae-c811-4040-acbe-dbd085db5774"]
+Cell[1126797, 18647, 156, 3, 54, "Subsection",ExpressionUUID->"5a9e95b4-06dc-43dd-a6ba-9828e38a4bbe"],
+Cell[1126956, 18652, 1139, 19, 150, "Text",ExpressionUUID->"51f4a9ae-c811-4040-acbe-dbd085db5774"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[1128091, 18675, 171, 3, 54, "Subsection",ExpressionUUID->"216a7ed7-ad6b-4f32-9b04-e21605a7fa72"],
-Cell[1128265, 18680, 1446, 23, 156, "Text",ExpressionUUID->"5e4f9bbd-f128-47e4-8476-7bcc563679a5"]
+Cell[1128132, 18676, 171, 3, 54, "Subsection",ExpressionUUID->"216a7ed7-ad6b-4f32-9b04-e21605a7fa72"],
+Cell[1128306, 18681, 1600, 24, 222, "Text",ExpressionUUID->"5e4f9bbd-f128-47e4-8476-7bcc563679a5"]
 }, Open  ]]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[1129760, 18709, 153, 3, 67, "Section",ExpressionUUID->"1b742579-308f-49cb-9c81-dc588f72f49b"],
-Cell[1129916, 18714, 892, 16, 127, "Text",ExpressionUUID->"79f68212-9595-4254-a423-2936d86a3832"],
+Cell[1129955, 18711, 153, 3, 67, "Section",ExpressionUUID->"1b742579-308f-49cb-9c81-dc588f72f49b"],
 Cell[CellGroupData[{
-Cell[1130833, 18734, 141, 3, 54, "Subsection",ExpressionUUID->"d1b02ac0-6883-4c8a-8bbc-cd20e841f482"],
-Cell[1130977, 18739, 804, 16, 104, "Text",ExpressionUUID->"11e3f58c-e930-440f-883b-bd1ab37af7b2"]
+Cell[1130133, 18718, 161, 3, 54, "Subsection",ExpressionUUID->"b039f356-2039-4fc3-86dd-28e0928f9b86"],
+Cell[1130297, 18723, 381, 8, 35, "Text",ExpressionUUID->"db06cb94-652b-45ce-92ae-b085e0954cdb"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[1131818, 18760, 172, 3, 54, "Subsection",ExpressionUUID->"1f6118b2-48cb-46b9-8e6c-5c4d1aa06659"],
-Cell[1131993, 18765, 940, 15, 81, "Text",ExpressionUUID->"49d0e5e8-ea73-4fe0-8512-b502ca3ff4d2"]
+Cell[1130715, 18736, 141, 3, 54, "Subsection",ExpressionUUID->"d1b02ac0-6883-4c8a-8bbc-cd20e841f482"],
+Cell[1130859, 18741, 958, 18, 104, "Text",ExpressionUUID->"11e3f58c-e930-440f-883b-bd1ab37af7b2"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[1132970, 18785, 219, 4, 54, "Subsection",ExpressionUUID->"fd64281a-a482-4893-b282-7bcfcd418d8a"],
-Cell[1133192, 18791, 374, 7, 58, "Text",ExpressionUUID->"c965412b-bf0a-4255-a830-1adcefacc7aa"]
+Cell[1131854, 18764, 172, 3, 54, "Subsection",ExpressionUUID->"1f6118b2-48cb-46b9-8e6c-5c4d1aa06659"],
+Cell[1132029, 18769, 940, 15, 81, "Text",ExpressionUUID->"49d0e5e8-ea73-4fe0-8512-b502ca3ff4d2"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[1133603, 18803, 170, 3, 54, "Subsection",ExpressionUUID->"3643bbb9-379f-4eae-88cf-08714b18a682"],
-Cell[1133776, 18808, 443, 8, 58, "Text",ExpressionUUID->"232aea2d-1bc1-4ef0-966e-2cdbb4fb1f46"]
+Cell[1133006, 18789, 219, 4, 54, "Subsection",ExpressionUUID->"fd64281a-a482-4893-b282-7bcfcd418d8a"],
+Cell[1133228, 18795, 374, 7, 58, "Text",ExpressionUUID->"c965412b-bf0a-4255-a830-1adcefacc7aa"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[1134256, 18821, 161, 3, 54, "Subsection",ExpressionUUID->"085439c8-435e-4cad-a0ea-24ddd3ce6891"],
-Cell[1134420, 18826, 458, 9, 35, "Text",ExpressionUUID->"e089af6d-4e0a-459f-b432-f86634925a1b"]
+Cell[1133639, 18807, 170, 3, 54, "Subsection",ExpressionUUID->"3643bbb9-379f-4eae-88cf-08714b18a682"],
+Cell[1133812, 18812, 443, 8, 58, "Text",ExpressionUUID->"232aea2d-1bc1-4ef0-966e-2cdbb4fb1f46"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[1134915, 18840, 172, 3, 54, "Subsection",ExpressionUUID->"73106c9a-5005-483a-8a34-1dbeeeec2e21"],
-Cell[1135090, 18845, 536, 10, 35, "Text",ExpressionUUID->"6d4b8309-435a-44fb-938f-0e56d14b704b"]
+Cell[1134292, 18825, 161, 3, 54, "Subsection",ExpressionUUID->"085439c8-435e-4cad-a0ea-24ddd3ce6891"],
+Cell[1134456, 18830, 458, 9, 35, "Text",ExpressionUUID->"e089af6d-4e0a-459f-b432-f86634925a1b"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[1135663, 18860, 171, 3, 54, "Subsection",ExpressionUUID->"c9670068-cacd-49c4-b37d-1a21f061ef92"],
-Cell[1135837, 18865, 421, 8, 58, "Text",ExpressionUUID->"9a71f6d5-b718-46b4-ab05-834a392eab02"]
+Cell[1134951, 18844, 172, 3, 54, "Subsection",ExpressionUUID->"73106c9a-5005-483a-8a34-1dbeeeec2e21"],
+Cell[1135126, 18849, 536, 10, 35, "Text",ExpressionUUID->"6d4b8309-435a-44fb-938f-0e56d14b704b"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[1136295, 18878, 161, 3, 54, "Subsection",ExpressionUUID->"6cce6723-5fc2-411d-8aca-7437d4c854ba"],
-Cell[1136459, 18883, 578, 10, 58, "Text",ExpressionUUID->"17ba7141-5159-49a0-906b-dbff0cdb1ec9"]
+Cell[1135699, 18864, 171, 3, 54, "Subsection",ExpressionUUID->"c9670068-cacd-49c4-b37d-1a21f061ef92"],
+Cell[1135873, 18869, 421, 8, 58, "Text",ExpressionUUID->"9a71f6d5-b718-46b4-ab05-834a392eab02"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[1136331, 18882, 161, 3, 54, "Subsection",ExpressionUUID->"6cce6723-5fc2-411d-8aca-7437d4c854ba"],
+Cell[1136495, 18887, 578, 10, 58, "Text",ExpressionUUID->"17ba7141-5159-49a0-906b-dbff0cdb1ec9"]
 }, Open  ]]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[1137086, 18899, 156, 3, 67, "Section",ExpressionUUID->"48d040a1-8c7d-4381-9795-9d82bbd291bd"],
-Cell[1137245, 18904, 1537, 23, 173, "Text",ExpressionUUID->"87bf15d9-861c-4b85-9ca4-875621b9f53a"]
+Cell[1137122, 18903, 156, 3, 67, "Section",ExpressionUUID->"48d040a1-8c7d-4381-9795-9d82bbd291bd"],
+Cell[1137281, 18908, 1586, 28, 173, "Text",ExpressionUUID->"87bf15d9-861c-4b85-9ca4-875621b9f53a"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[1138819, 18932, 175, 3, 67, "Section",ExpressionUUID->"4401ee2c-95e7-4ed3-badb-29d62d7ee495"],
+Cell[1138904, 18941, 175, 3, 67, "Section",ExpressionUUID->"4401ee2c-95e7-4ed3-badb-29d62d7ee495"],
 Cell[CellGroupData[{
-Cell[1139019, 18939, 170, 3, 54, "Subsection",ExpressionUUID->"141cb710-f6ac-40f6-b5db-6a3da379f972"],
-Cell[1139192, 18944, 959, 16, 104, "Text",ExpressionUUID->"dcdcea59-b704-44df-8a09-0180c415bcc0"]
+Cell[1139104, 18948, 170, 3, 54, "Subsection",ExpressionUUID->"141cb710-f6ac-40f6-b5db-6a3da379f972"],
+Cell[1139277, 18953, 952, 15, 81, "Text",ExpressionUUID->"dcdcea59-b704-44df-8a09-0180c415bcc0"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[1140188, 18965, 194, 3, 54, "Subsection",ExpressionUUID->"320b4e01-a342-4599-8679-e9fc4372c914"],
-Cell[1140385, 18970, 450, 8, 35, "Text",ExpressionUUID->"dfafe232-b3fa-4972-874d-2bb2f9a9d000"]
+Cell[1140266, 18973, 194, 3, 54, "Subsection",ExpressionUUID->"320b4e01-a342-4599-8679-e9fc4372c914"],
+Cell[1140463, 18978, 448, 8, 35, "Text",ExpressionUUID->"dfafe232-b3fa-4972-874d-2bb2f9a9d000"]
 }, Open  ]]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[1140884, 18984, 206, 4, 67, "Section",ExpressionUUID->"df25fabe-bbb6-4026-86ee-77ecf0a445b6"],
-Cell[1141093, 18990, 1521, 26, 196, "Text",ExpressionUUID->"600ddbf9-990f-4861-8118-54814b5f8bc1"]
+Cell[1140960, 18992, 206, 4, 67, "Section",ExpressionUUID->"df25fabe-bbb6-4026-86ee-77ecf0a445b6"],
+Cell[1141169, 18998, 1521, 26, 196, "Text",ExpressionUUID->"600ddbf9-990f-4861-8118-54814b5f8bc1"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[1142651, 19021, 249, 4, 67, "Section",ExpressionUUID->"e5533970-f505-4192-ac59-a696266ab683"],
-Cell[1142903, 19027, 1270, 22, 127, "Text",ExpressionUUID->"99a9d956-d0b9-42d6-ad3f-6387b90f61e5"]
+Cell[1142727, 19029, 249, 4, 67, "Section",ExpressionUUID->"e5533970-f505-4192-ac59-a696266ab683"],
+Cell[1142979, 19035, 1270, 22, 127, "Text",ExpressionUUID->"99a9d956-d0b9-42d6-ad3f-6387b90f61e5"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[1144210, 19054, 148, 3, 67, "Section",ExpressionUUID->"4e7800d3-e38e-4d50-b46d-6d361e81ff93"],
-Cell[1144361, 19059, 2631, 51, 230, "Input",ExpressionUUID->"7bf2a37f-1162-49da-86af-bd885c4524e8"]
+Cell[1144286, 19062, 148, 3, 67, "Section",ExpressionUUID->"4e7800d3-e38e-4d50-b46d-6d361e81ff93"],
+Cell[1144437, 19067, 2631, 51, 241, "Input",ExpressionUUID->"7bf2a37f-1162-49da-86af-bd885c4524e8"]
 }, Open  ]]
 }, Open  ]]
 }
